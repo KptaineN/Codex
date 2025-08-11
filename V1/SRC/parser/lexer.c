@@ -38,6 +38,39 @@ void add_cmd(t_shell *shell, t_token *token)
     }
 }
 
+/*
+ * Build a linked list of command tokens from the array of tokens
+ * produced during parsing. Only command or builtin tokens are kept
+ * and the resulting list is stored in shell->cmd_head.
+ */
+void build_cmd_list(t_shell *shell)
+{
+    t_token *prev;
+    int     i;
+
+    if (!shell || !shell->tokens)
+        return ;
+    shell->cmd_head = NULL;
+    shell->cmd_tail = NULL;
+    shell->n_cmd = 0;
+    prev = NULL;
+    i = 0;
+    while (i < shell->n_tokens)
+    {
+        t_token *tok = &shell->tokens[i];
+        if (tok->type == TOKEN_CMD || tok->type == TOKEN_BCMD)
+        {
+            if (prev)
+                prev->next = tok;
+            tok->next = NULL;
+            add_cmd(shell, tok);
+            prev = tok;
+            shell->n_cmd++;
+        }
+        i++;
+    }
+}
+
 int count_args_cmd(t_shell *shell, int i)
 {
     int     n_args;

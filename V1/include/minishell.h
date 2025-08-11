@@ -216,7 +216,6 @@ bool    escape_check(const char *str, int idx);
 
 //void    file_access_redirection(t_shell *shell, void **arr, int t_arr_index, int i);
 void    build_cmd_list(t_shell *shell);
-=======
 int     file_access_redirection(t_shell *shell, void **arr, int t_arr_index, int i);
 
 char *find_command_path(char *cmd, t_list *env);
