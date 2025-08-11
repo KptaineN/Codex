@@ -164,7 +164,7 @@ int   export_no_arguments(t_shell *shell);
 int   process_export_argument(char *arg, t_shell *shell);
 /* --- Env --- */
 char    *get_env_value(t_list *env, const char *name);
-char    **env_to_envp(t_list *env);
+char    **list_to_envp(t_list *env);
 int     env_len(t_list *env);
 void    print_env(t_list *env);
 t_list  *init_env(char **envp);
@@ -182,6 +182,7 @@ void    subtoken_of_cmd(t_subtoken_container *container, char *arg);
 int     find_c_nonescaped(const char *str, char *needle, int size_needle);
 bool    escape_check(const char *str, int idx);
 void    file_access_redirection(t_shell *shell, void **arr, int t_arr_index, int i);
+void    build_cmd_list(t_shell *shell);
 char *find_command_path(char *cmd, t_list *env);
 void     execute_cmd(t_shell *shell, t_token *cmd);
 //void     ft_itoa_inplace(char *buf, int n);

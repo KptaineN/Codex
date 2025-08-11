@@ -119,9 +119,32 @@ void file_access_redirection(t_shell *shell, void **arr, int t_arr_index, int i)
 		if (access(arr[i + 1], O_CREAT | O_RDWR | O_APPEND | O_TRUNC) < 0)
 			perror("Erreur lors de l'ouverture en écriture (append)");
 	}
-	else if (t_arr_index == 6)
-	{
-		if (access(arr[i + 1], O_CREAT | O_RDWR | O_TRUNC) < 0)
-			perror("Erreur lors de l'ouverture en écriture (trunc)");
-	}
+        else if (t_arr_index == 6)
+        {
+                if (access(arr[i + 1], O_CREAT | O_RDWR | O_TRUNC) < 0)
+                        perror("Erreur lors de l'ouverture en écriture (trunc)");
+        }
 }
+
+void    build_cmd_list(t_shell *shell)
+{
+    int i;
+
+    shell->cmd_head = NULL;
+    shell->cmd_tail = NULL;
+    shell->n_cmd = 0;
+    if (!shell->tokens)
+        return ;
+    i = 0;
+    while (i < shell->n_tokens)
+    {
+        if (shell->tokens[i].type == TOKEN_CMD
+            || shell->tokens[i].type == TOKEN_BCMD)
+        {
+            add_cmd(shell, &shell->tokens[i]);
+            shell->n_cmd++;
+        }
+        i++;
+    }
+}
+

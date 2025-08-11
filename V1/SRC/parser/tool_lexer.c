@@ -102,35 +102,32 @@ int count_subtokens(const char *str)
  * ============================= */
 int count_tokens(t_shell *shell, t_arr *parsed_args, t_arr *oper)
 {
-    int count = 1;
-    int i = 0;
-    int len;
+    int count;
+    int i;
     int idx_oper;
+    int n_args;
 
     if (!parsed_args || !parsed_args->arr)
         return 0;
-
-    len = parsed_args->len;
-    if (len == 0)
-        return 0;
-
-    while (i < len)
+    count = 0;
+    i = 0;
+    while (i < parsed_args->len)
     {
         idx_oper = is_in_t_arr_dic_str(oper, parsed_args->arr[i]);
         if (idx_oper != -1)
         {
+            count++;
             if (idx_oper < 2 || idx_oper > 4)
-            {
-                file_access_redirection(shell, parsed_args->arr, idx_oper, i);
                 i += 2;
-                continue;
-            }
             else
-            {
-                count++;
-            }
+                i++;
         }
-        i++;
+        else
+        {
+            count++;
+            n_args = count_args_cmd(shell, i);
+            i += n_args;
+        }
     }
     return count;
 }
