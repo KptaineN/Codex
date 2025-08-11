@@ -40,88 +40,121 @@ void add_cmd(t_shell *shell, t_token *token)
 
 int count_args_cmd(t_shell *shell, int i)
 {
-    int n_args = 0;
-    char **arr;
-    int len;
-    int idx_oper;
+    int     n_args;
+    char    **arr;
+    int     len;
+    int     idx_oper;
+    char    *op;
 
     if (!shell || !shell->parsed_args || !shell->parsed_args->arr)
         return 0;
-
     arr = (char **)shell->parsed_args->arr;
     len = shell->parsed_args->len;
-
-    while (i < len && arr[i] != NULL)
+    n_args = 0;
+    while (i < len && arr[i])
     {
-        //printf("count_args_cmd: arr[%d] = \"%s\"\n", i, arr[i]);
-
-        // Vérifie si on tombe sur un opérateur (|, <, >, etc.)
         idx_oper = is_in_t_arr_dic_str(shell->oper, arr[i]);
         if (idx_oper != -1)
         {
-            // On s'arrête avant l'opérateur
-            return n_args;
+            if (idx_oper < 2 || idx_oper > 4)
+            {
+                op = ((t_dic *)shell->oper->arr[idx_oper])->key;
+                if ((int)ft_strlen(arr[i]) == (int)ft_strlen(op))
+                    i++;
+                i++;
+                continue;
+            }
+            break;
         }
-
         n_args++;
         i++;
     }
-
     if (n_args == 0)
-    {
-        //printf("count_args_cmd: No valid arguments found.\n");
-        return 1; // Par défaut, on considère 1 argument (au moins la commande elle-même)
-    }
+        return 1;
     return n_args;
 }
 
 
-void file_access_redirection(t_shell *shell, void **arr, int t_arr_index, int i)
+static char *strip_quotes(const char *s)
 {
-	if (i + 1 >= shell->n_tokens)
-		perror("Argument manquant pour l'opérateur");
+    size_t len;
 
-	if (t_arr_index == 5)
-	{
-		if (shell->fd_in != -1)
-		{
-			shell->fd_in = open(arr[i + 1], O_RDONLY);
-			if (shell->fd_in < 0)
-				perror("Erreur lors de l'ouverture en lecture");
-		}
-		else if (access(arr[i + 1], O_RDONLY) < 0)
-		{
-			perror("ERROR ACCESS");
-		}
-		return;
-	}
+    if (!s)
+        return NULL;
+    len = ft_strlen(s);
+    if (len >= 2 && ((s[0] == '"' && s[len - 1] == '"') || (s[0] == '\'' && s[len - 1] == '\'')))
+        return ft_substr(s, 1, len - 2);
+    return ft_strdup(s);
+}
 
-	// sortie 
-	if (shell->fd_out != -1)
-	{
-		if (t_arr_index == 1)
-		{
-			shell->fd_out = open(arr[i + 1], O_CREAT | O_RDWR | O_APPEND, 0644);
-			if (shell->fd_out < 0)
-				perror("Erreur lors de l'ouverture en écriture (append)");
-		}
-		else if (t_arr_index == 6)
-		{
-			shell->fd_out = open(arr[i + 1], O_CREAT | O_RDWR, 0644);
-			if (shell->fd_out < 0)
-				perror("Erreur lors de l'ouverture en écriture (trunc)");
-		}
-		return;
-	}
+int file_access_redirection(t_shell *shell, void **arr, int t_arr_index, int i)
+{
+    char    *token;
+    char    *op;
+    char    *fname;
+    char    *clean;
+    int     consumed;
+    int     fd;
 
-	if (t_arr_index == 1)
-	{
-		if (access(arr[i + 1], O_CREAT | O_RDWR | O_APPEND | O_TRUNC) < 0)
-			perror("Erreur lors de l'ouverture en écriture (append)");
-	}
-	else if (t_arr_index == 6)
-	{
-		if (access(arr[i + 1], O_CREAT | O_RDWR | O_TRUNC) < 0)
-			perror("Erreur lors de l'ouverture en écriture (trunc)");
-	}
+    token = (char *)arr[i];
+    op = ((t_dic *)shell->oper->arr[t_arr_index])->key;
+    consumed = 1;
+    if ((int)ft_strlen(token) > (int)ft_strlen(op))
+        fname = token + ft_strlen(op);
+    else
+    {
+        fname = (char *)arr[i + 1];
+        consumed = 2;
+    }
+    clean = strip_quotes(fname);
+    if (!clean)
+        return consumed;
+    if (t_arr_index == 5)
+    {
+        fd = open(clean, O_RDONLY);
+        if (fd < 0)
+            perror(clean);
+        else
+        {
+            if (shell->fd_in != STDIN_FILENO && shell->fd_in != -1)
+                close(shell->fd_in);
+            shell->fd_in = fd;
+        }
+    }
+    else if (t_arr_index == 6)
+    {
+        fd = open(clean, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+        if (fd < 0)
+            perror(clean);
+        else
+        {
+            if (shell->fd_out != STDOUT_FILENO && shell->fd_out != -1)
+                close(shell->fd_out);
+            shell->fd_out = fd;
+        }
+    }
+    else if (t_arr_index == 1)
+    {
+        fd = open(clean, O_CREAT | O_WRONLY | O_APPEND, 0644);
+        if (fd < 0)
+            perror(clean);
+        else
+        {
+            if (shell->fd_out != STDOUT_FILENO && shell->fd_out != -1)
+                close(shell->fd_out);
+            shell->fd_out = fd;
+        }
+    }
+    else if (t_arr_index == 0)
+    {
+        char *argv[3];
+
+        argv[0] = NULL;
+        argv[1] = clean;
+        argv[2] = NULL;
+        handle_heredoc(shell, argv);
+        clean = NULL; /* already used by heredoc */
+    }
+    free(clean);
+    return consumed;
 }
