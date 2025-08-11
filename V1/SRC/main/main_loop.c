@@ -213,10 +213,7 @@ int looping(t_shell *shell)
         /* Attribution des types */
         attribute_token_type(shell);
 
-        /* Reset & fallback commande unique */
-        shell->n_cmd   = 0;
-        shell->cmd_head = NULL;
-        shell->cmd_tail = NULL;
+        build_cmd_list(shell);
         if (shell->n_tokens > 0 && shell->n_cmd == 0)
         {
             shell->n_cmd = 1;

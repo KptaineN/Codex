@@ -148,7 +148,6 @@ int file_access_redirection(t_shell *shell, void **arr, int t_arr_index, int i)
     else if (t_arr_index == 0)
     {
         char *argv[3];
-
         argv[0] = NULL;
         argv[1] = clean;
         argv[2] = NULL;
@@ -158,3 +157,4 @@ int file_access_redirection(t_shell *shell, void **arr, int t_arr_index, int i)
     free(clean);
     return consumed;
 }
+
