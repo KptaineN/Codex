@@ -160,7 +160,12 @@ void one_command(t_shell *shell)
     close(fd[1]);  // Close write end
     close(fd_pid[1]);
 
-    waitpid(pid,NULL,0);
+    int status;
+    waitpid(pid, &status, 0);
+    if (WIFEXITED(status))
+        shell->exit_status = WEXITSTATUS(status);
+    else
+        shell->exit_status = 1;
 }
 
 void launch_process(t_shell *shell)

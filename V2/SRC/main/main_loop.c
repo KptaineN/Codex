@@ -161,6 +161,35 @@ int looping(t_shell *shell)
 	}
 	return (0);
 }*/
+
+static int    run_builtin(t_shell *shell)
+{
+    char **args;
+
+    if (!shell->parsed_args || !shell->parsed_args->arr)
+        return (0);
+    args = (char **)shell->parsed_args->arr;
+    if (!args[0])
+        return (0);
+    if (ft_strcmp(args[0], "echo") == 0)
+        builtin_echo(shell, args);
+    else if (ft_strcmp(args[0], "cd") == 0)
+        builtin_cd(shell, args);
+    else if (ft_strcmp(args[0], "pwd") == 0)
+        builtin_pwd(shell, args);
+    else if (ft_strcmp(args[0], "export") == 0)
+        builtin_export(shell, args);
+    else if (ft_strcmp(args[0], "unset") == 0)
+        builtin_unset(shell, args);
+    else if (ft_strcmp(args[0], "env") == 0)
+        builtin_env(shell, args);
+    else if (ft_strcmp(args[0], "exit") == 0)
+        builtin_exit(shell, args);
+    else
+        return (0);
+    return (1);
+}
+
 int looping(t_shell *shell)
 {
     char  *input;
@@ -206,6 +235,16 @@ int looping(t_shell *shell)
         shell->input = step2;
         shell->parsed_args = custom_split(step2, shell);
         if (!shell->parsed_args) { free(step2); free(input); continue; }
+
+        if (run_builtin(shell))
+        {
+            free_str_array((char **)shell->parsed_args->arr);
+            free(shell->parsed_args);
+            shell->parsed_args = NULL;
+            free(step2);
+            free(input);
+            continue;
+        }
 
         /* Attribution des types */
         attribute_token_type(shell);

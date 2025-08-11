@@ -14,32 +14,62 @@ int	is_numeric(const char *str)
 			return (0);
 		i++;
 	}
-	return (1);
+        return (1);
+}
+
+static char *strip_quotes(char *s)
+{
+    char *res;
+    int i = 0;
+    int j = 0;
+
+    if (!s)
+        return (NULL);
+    res = malloc(ft_strlen(s) + 1);
+    if (!res)
+        return (NULL);
+    while (s[i])
+    {
+        if (s[i] != '\'' && s[i] != '"')
+            res[j++] = s[i];
+        i++;
+    }
+    res[j] = '\0';
+    return (res);
 }
 
 int builtin_exit(t_shell *shell, char **argv)
 {
     long code = 0;
+    char *arg;
 
     write(1, "exit\n", 5);
 
-    if (argv[1]) // y a-t-il un argument après "exit" ?
+    if (argv[1])
     {
-        if (!is_numeric(argv[1]))
+        arg = strip_quotes(argv[1]);
+        if (!is_numeric(arg))
         {
+            free(arg);
             ft_putstr_fd("minishell: exit: numeric argument required\n", 2);
-            exit_shell(shell, 255);
+            shell->exit_status = 2;
+            exit_shell(shell, 2);
         }
-        if (argv[2]) // trop d'arguments
+        if (argv[2])
         {
+            free(arg);
             ft_putstr_fd("minishell: exit: too many arguments\n", 2);
+            shell->exit_status = 1;
             return (1);
         }
-        code = ft_atoi(argv[1]);
-        exit_shell(shell, code % 256);
+        code = ft_atoi(arg);
+        free(arg);
+        shell->exit_status = code % 256;
+        exit_shell(shell, shell->exit_status);
     }
+    shell->exit_status = 0;
     exit_shell(shell, 0);
-    return 0;
+    return (0);
 }
 
 
