@@ -87,23 +87,26 @@ int attribute_cmd_subtokens(t_shell *shell, t_token *cmd_token, int idx, int len
 	t_arr *arr_arg = shell->parsed_args;
 	char *curr_arg;
 	int idx_container = 0;
-	cmd_token->cmd_args_parts = malloc(sizeof(t_subtoken_container *)*len);
-	arr_container = cmd_token->cmd_args_parts;
-	if (!arr_container)
-		return -1;
+        cmd_token->cmd_args_parts = malloc(sizeof(t_subtoken_container) * (len + 1));
+        arr_container = cmd_token->cmd_args_parts;
+        if (!arr_container)
+                return -1;
 
-	while(idx_container<len)
-	{
-		curr_arg = arr_arg->arr[idx];
-		if (curr_arg != NULL)
-		{
-			arr_container[idx_container].n_parts = count_subtokens(curr_arg);
-			subtoken_of_cmd(&arr_container[idx_container++], curr_arg);
-		}
-		idx++;
-	}
-	cmd_token->n_parts = len;
-	return idx-1;
+        while (idx_container < len)
+        {
+                curr_arg = arr_arg->arr[idx];
+                if (curr_arg != NULL)
+                {
+                        arr_container[idx_container].n_parts = count_subtokens(curr_arg);
+                        subtoken_of_cmd(&arr_container[idx_container], curr_arg);
+                        idx_container++;
+                }
+                idx++;
+        }
+        arr_container[idx_container].n_parts = 0;
+        arr_container[idx_container].parts = NULL;
+        cmd_token->n_parts = len;
+        return idx - 1;
 }
 
 

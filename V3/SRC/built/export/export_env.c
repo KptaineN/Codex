@@ -1,53 +1,93 @@
 #include "export.h"
-typedef struct s_env
+
+/*
+ * The environment list stores entries as simple strings of the form
+ * "KEY=VALUE".  The previous implementation assumed a dedicated structure
+ * which led to invalid memory access and segmentation faults when handling
+ * valid identifiers.  The helpers below operate directly on the string
+ * representation to safely add, update and search variables.
+ */
+
+static char *build_entry(const char *key, const char *value)
 {
-    char *key;
-    char *value;
-} t_env;
+    char    *tmp;
+    char    *entry;
+
+    tmp = ft_strjoin(key, "=");
+    if (!tmp)
+        return NULL;
+    if (value)
+    {
+        entry = ft_strjoin(tmp, value);
+        free(tmp);
+    }
+    else
+        entry = tmp; // already "key="
+    return entry;
+}
 
 t_list *find_env_var(t_shell *shell, const char *key)
 {
-    for (t_list *node = shell->env; node; node = node->next)
+    t_list  *node;
+    size_t  key_len;
+
+    key_len = ft_strlen(key);
+    node = shell->env;
+    while (node)
     {
-        t_env *env = (t_env *)node->content;
-        if (ft_strcmp(env->key, key) == 0)
+        char    *entry;
+        char    *eq;
+        size_t  entry_len;
+
+        entry = (char *)node->content;
+        eq = ft_strchr(entry, '=');
+        entry_len = eq ? (size_t)(eq - entry) : ft_strlen(entry);
+        if (entry_len == key_len && ft_strncmp(entry, key, key_len) == 0)
             return node;
+        node = node->next;
     }
     return NULL;
 }
 
 int update_env_var(t_list *env_node, const char *value)
 {
-    t_env *env = (t_env *)env_node->content;
-    free(env->value);
-    if (value != NULL)
-        env->value = ft_strdup(value);
+    char    *entry;
+    char    *eq;
+    char    *key;
+    char    *new_entry;
+
+    entry = (char *)env_node->content;
+    eq = ft_strchr(entry, '=');
+    if (eq)
+        key = ft_substr(entry, 0, eq - entry);
     else
-        env->value = NULL;
+        key = ft_strdup(entry);
+    if (!key)
+        return 1;
+    free(entry);
+    new_entry = build_entry(key, value);
+    free(key);
+    if (!new_entry)
+        return 1;
+    env_node->content = new_entry;
     return 0;
 }
 
 int create_env_var(t_shell *shell, const char *key, const char *value)
 {
-    t_env *new_env = malloc(sizeof(*new_env));
-    if (new_env == NULL)
+    t_list  *new_node;
+    char    *entry;
+
+    entry = build_entry(key, value);
+    if (!entry)
         return 1;
-
-    new_env->key = ft_strdup(key);
-    if (value != NULL)
-        new_env->value = ft_strdup(value);
-    else
-        new_env->value = NULL;
-
-    t_list *new_node = malloc(sizeof(*new_node));
-    if (new_node == NULL)
+    new_node = malloc(sizeof(*new_node));
+    if (!new_node)
     {
-        free(new_env->key);
-        free(new_env->value);
-        free(new_env);
+        free(entry);
         return 1;
     }
-    new_node->content = new_env;
+    new_node->content = entry;
     new_node->next = shell->env;
     shell->env = new_node;
     return 0;
@@ -55,10 +95,11 @@ int create_env_var(t_shell *shell, const char *key, const char *value)
 
 int set_env_var(t_shell *shell, const char *key, const char *value)
 {
-    t_list *existing = find_env_var(shell, key);
+    t_list *existing;
 
+    existing = find_env_var(shell, key);
     if (existing)
         return update_env_var(existing, value);
-    else
-        return create_env_var(shell, key, value);
+    return create_env_var(shell, key, value);
 }
+
