@@ -23,7 +23,12 @@ int builtin_env(t_shell *shell, char **args)
     {
         env = cur->content;
         if (env->value)
-            printf("%s=%s\n", env->key, env->value);
+        {
+            write(STDOUT_FILENO, env->key, ft_strlen(env->key));
+            write(STDOUT_FILENO, "=", 1);
+            write(STDOUT_FILENO, env->value, ft_strlen(env->value));
+            write(STDOUT_FILENO, "\n", 1);
+        }
         cur = cur->next;
     }
     shell->exit_status = 0;
