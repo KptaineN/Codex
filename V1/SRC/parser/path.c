@@ -358,7 +358,7 @@ void execute_cmd(t_shell *shell, t_token *cmd)
     }
 
     /* 3) Préparation de l'envp et exec */
-    envp = linked_to_array_string(shell->env);
+    envp = env_to_envp(shell->env);
     execve(cmd_path, args, envp);
 
     /* 4) Si execve échoue, afficher l’erreur et cleanup */

@@ -233,6 +233,25 @@ void launch_process(t_shell *shell)
     int      prev_fd  = -1;
     int      pipe_fd[2];
 
+    /* Exécuter un builtin sans forker s'il est seul */
+    if (shell->n_cmd == 1)
+    {
+        char **args = expand_cmd((t_token *)curr_cmd->content, shell->env);
+        if (args)
+        {
+            int idx = is_in_t_arr_str(shell->bcmd, args[0]);
+            if (idx != -1)
+            {
+                int (*handler)(t_shell *, char **) = get_builtin_handler(shell->bcmd, idx);
+                if (handler)
+                    shell->exit_status = handler(shell, args);
+                free_tab(args);
+                return;
+            }
+            free_tab(args);
+        }
+    }
+
     for (int i = 0; i < shell->n_cmd; i++)
     {
         /* Si ce n'est pas la dernière commande, on crée un pipe */
