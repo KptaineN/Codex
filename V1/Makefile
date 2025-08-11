@@ -28,6 +28,7 @@ RELEASE_LDFLAGS := -lreadline -no-pie
 
 # FLAGS POUR DEBUG (avec AddressSanitizer & debug info)
 DEBUG_FLAGS := -g -fsanitize=address -fno-omit-frame-pointer -Wall -Wextra -Werror -no-pie $(ALL_PATHS)
+
 DEBUG_LDFLAGS := -lreadline -fsanitize=address -no-pie
 
 # Sera changé dynamiquement par la cible 'debug'
