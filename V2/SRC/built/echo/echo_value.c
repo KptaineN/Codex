@@ -36,7 +36,7 @@ static char *get_special_var(const char *key)
     return NULL;
 }
 
-static int is_valid_key_char(char c)
+int is_valid_key_char(char c)
 {
     return (ft_isalnum(c) || c == '_');
 }

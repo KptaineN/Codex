@@ -12,6 +12,7 @@ int builtin_echo(t_shell *shell, char **argv);
 
 char *get_dollar_value(const char *arg, int *pos, t_shell *sh);
 char *replace_variables(const char *arg, t_shell *sh);
+int is_valid_key_char(char c);
 
 #endif
     
