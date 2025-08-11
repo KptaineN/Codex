@@ -170,8 +170,7 @@ int builtin_quack(char **args)
 
 int match_str(t_subtoken sub, const char *str)
 {
-    printf("[DEBUG] matching '%.*s' with '%s'\n", sub.len, sub.p, str);
-	return (ft_strncmp(sub.p, str, sub.len) == 0 && str[sub.len] == '\0');
+        return (ft_strncmp(sub.p, str, sub.len) == 0 && str[sub.len] == '\0');
 }
 int is_builtin(const char *cmd)
 {
@@ -190,42 +189,6 @@ int is_builtin(const char *cmd)
 
 
 
-/*int execute_builtin(t_shell *shell, int token_idx)
-{
-    t_token *tok = &shell->parser.tokens[token_idx];
-    t_subtoken first = tok->cmd_args_parts[0].parts[0];
-
-    // Export prend directement le token
-    if (match_str(first, "export"))
-        return builtin_export(tok, shell);
-
-   // char **args = reconstruct_args(tok->cmd_args_parts);
-
-    if (match_str(first, "cd"))
-        return builtin_cd(args, shell);
-    if (match_str(first, "echo"))
-        return builtin_echo(shell, tok);
-    if (match_str(first, "pwd"))
-        return builtin_pwd();
-    if (match_str(first, "exit"))
-        return builtin_exit(shell, tok);
-    if (match_str(first, "unset"))
-        return builtin_unset(args, shell);
-    if (match_str(first, "env"))
-        return builtin_env(args, shell);
-    if (match_str(first, "duck"))
-    {
-        ft_putstr_fd("Quack! 🦆\n", STDOUT_FILENO);
-        free_tab(args);
-        return 0;
-    }
-    printf("[DEBUG] execute_builtin: got command = ");
-    write(1, first.p, first.len);
-    printf("\n");
-
-    free_tab(args);
-    return 1;
-}*/
 
 
 		//return (builtin_env(shell->args, shell));

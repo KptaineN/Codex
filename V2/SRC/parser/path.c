@@ -218,7 +218,6 @@ char *expand_container(t_subtoken_container *a, t_list **head, t_list *env)
 		else							//expansion
 			expand_str(b,env,&count,&curr);
 		//if (curr && (curr)->content)
-		//	printf("%s\n", (char *)(curr)->content);
 		j++;
 	}
 	return build_expansion(a,count,&((*head)->next));
@@ -244,7 +243,6 @@ char **expand_cmd(t_token *token, t_list *env)
 	{
 		a = &token->cmd_args_parts[i];
 		res[i] = expand_container(a,&head,env); 
-		//printf("%s\n", res[i]);
 		i++;
 	}
 	res[i] = NULL;

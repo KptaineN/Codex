@@ -346,14 +346,6 @@ int builtin_export(t_token *token, t_shell *shell)
     shell->exit_status = error;
     return error;
 }*/
-void print_env_debug(t_list *env)
-{
-    while (env)
-    {
-        printf("[DEBUG] %s\n", (char*)env->content);
-        env = env->next;
-    }
-}
 int builtin_export(t_shell *shell, char **argv)
 {
     // Cas sans argument explicite : export seul => affiche les variables exportées
@@ -371,8 +363,6 @@ int builtin_export(t_shell *shell, char **argv)
 /*/
 int builtin_export(t_token *token, t_shell *shell)
 {
-    //print_env_debug(shell->env); // Debug: afficher l'environnement avant traitement
-
     if (!token || !token->cmd_args_parts)
         return export_no_arguments(shell);
 

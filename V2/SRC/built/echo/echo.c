@@ -126,48 +126,6 @@ static char *get_dollar_value(const char *arg, int *pos, t_shell *sh)
     return val;
 */
 
-/*
-
-int builtin_echo(t_shell *shell, char **argv)
-{
-    int i = 1;
-    printf("[DEBUG] echo argv[0]=%s\n", argv[0]);
-    printf("[DEBUG] echo argv[1]=%s\n", argv[1]);
-    // ... etc
-    while (argv[i]) {
-        printf("[DEBUG] argv[%d]=%s\n", i, argv[i]);
-        i++;
-    }
-    int newline = 1;
-
-   // (void)shell;
-
-   
-    // Gestion de l'option -n (peut être répétée)
-    printf("[ECHO DEBUG] quand i = 1 l11  argv[0]=%s, argv[1]=%s\n", argv[0], argv[1]);
-
-    while (argv[i] && ft_strncmp(argv[i], "-n", 3) == 0)
-    {
-        newline = 0;
-        i++;
-    }
-
-    // Affichage de tous les arguments restants, séparés par un espace
-    while (argv[i])
-    {
-        printf("[ECHO-ARG %d] = '%s'\n", i, argv[i]);
-        if (argv[i][0])
-            ft_putstr_fd(argv[i], STDOUT_FILENO);
-        if (argv[i + 1])
-            ft_putchar_fd(' ', STDOUT_FILENO);
-        i++;
-    }
-
-    if (newline)
-        ft_putchar_fd('\n', STDOUT_FILENO);
-    (void)shell; // Pour éviter l'avertissement de variable non utilisée
-    return 0;
-}*/
 
 
 
@@ -450,11 +408,8 @@ int builtin_echo(char **args, t_shell *sh)
         if (!first)
             write(1, " ", 1);
         first = false;
-        //printf("DEBUG argument original: '%s'\n", args[i]);
         char *tmp = replace_variables(args[i], sh);
-       // printf("DEBUG après replace_variables: '%s'\n", tmp);
         char *out = remove_quotes(tmp);
-       // printf("DEBUG après remove_quotes: '%s'\n", out);
         free(tmp);
         write(1, out, ft_strlen(out));
         free(out);
