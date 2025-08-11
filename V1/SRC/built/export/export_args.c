@@ -22,7 +22,8 @@ int handle_arg_with_assignment(char *arg, t_shell *shell)
     *eq = '\0';
     if (!is_valid_identifier(arg))
     {
-        printf("minishell: export: `%s': not a valid identifier\n", arg);
+        fprintf(stderr, "minishell: export: `%s': not a valid identifier\n", arg);
+        shell->exit_status = 1;
         ret = 1;
     }
     else if (set_env_var(shell, arg, eq + 1) != 0)
@@ -36,7 +37,8 @@ int handle_arg_without_assignment(char *arg, t_shell *shell)
 {
     if (!is_valid_identifier(arg))
     {
-        printf("minishell: export: `%s': not a valid identifier\n", arg);
+        fprintf(stderr, "minishell: export: `%s': not a valid identifier\n", arg);
+        shell->exit_status = 1;
         return 1;
     }
     if (!find_env_var(shell, arg))
