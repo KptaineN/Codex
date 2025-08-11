@@ -46,8 +46,11 @@ int start_cmd(t_shell *shell, int *prev_pipe, int *curr_pipe)
     if (pid == 0)
     {
         add_pid_env(shell,fd_pid[0]);
-        dup2(shell->fd_in, STDIN_FILENO);
-        close(shell->fd_in);
+        if (shell->fd_in != STDIN_FILENO)
+        {
+            dup2(shell->fd_in, STDIN_FILENO);
+            close(shell->fd_in);
+        }
         dup2(curr_pipe[1], STDOUT_FILENO);
         close(curr_pipe[0]);
         close(curr_pipe[1]);
@@ -89,8 +92,11 @@ int end_cmd(t_shell *shell,int *prev_pipe)
         dup2(prev_pipe[0], STDIN_FILENO);
         close(prev_pipe[0]);
         close(prev_pipe[1]);
-        dup2(shell->fd_out, STDOUT_FILENO);
-        close(shell->fd_out);
+        if (shell->fd_out != STDOUT_FILENO)
+        {
+            dup2(shell->fd_out, STDOUT_FILENO);
+            close(shell->fd_out);
+        }
         execute(shell,shell->cmd_tail->content);
     }
     send_pid(fd_pid[1],pid);
@@ -137,10 +143,16 @@ void one_command(t_shell *shell)
         close(fd[0]);
         close(fd_pid[0]);
 
-        dup2(shell->fd_in, STDIN_FILENO);
-        close(shell->fd_in);
-        dup2(shell->fd_out, STDOUT_FILENO);
-        close(shell->fd_out);
+        if (shell->fd_in != STDIN_FILENO)
+        {
+            dup2(shell->fd_in, STDIN_FILENO);
+            close(shell->fd_in);
+        }
+        if (shell->fd_out != STDOUT_FILENO)
+        {
+            dup2(shell->fd_out, STDOUT_FILENO);
+            close(shell->fd_out);
+        }
         execute(shell, shell->cmd_head->content);
         exit(1);
     }

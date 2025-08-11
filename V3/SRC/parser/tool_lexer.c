@@ -85,41 +85,33 @@ int count_subtokens(const char *str)
 
 int count_tokens(t_shell *shell)
 {
-    int count = 0;
-	bool cmd = 0;
-    int i = 0;
-    void **arr = shell->parsed_args->arr;
-    int len = shell->parsed_args->len;
-    int idx_oper;
-	if (len == 0)
-		return 0;
-	while(i<len)
-	{
-		while (i<len)
-		{	
-			idx_oper = is_in_t_arr_dic_str(shell->oper, arr[i]);
-			if (idx_oper != -1)
-			{
-				if (idx_oper < 2 || idx_oper > 4)
-				{
-					file_access_redirection(shell, idx_oper, i);
-					ft_free((void**)&shell->parsed_args->arr[i++]);
-					if (i != len)
-						ft_free((void**)&shell->parsed_args->arr[i]);	
-				}
-				else				
-				{
-					count++;
-					count+=cmd;
-					cmd = 0;
-					i++;
-					break;
-				}
-			}
-			else 
-				cmd = 1;
-			i++;
-		}
-	}
-    return count + cmd;
+    char    **arr;
+    int     len;
+    int     i;
+    int     idx_oper;
+
+    if (!shell || !shell->parsed_args)
+        return 0;
+    arr = (char **)shell->parsed_args->arr;
+    len = shell->parsed_args->len;
+    i = 0;
+    while (i < len)
+    {
+        idx_oper = is_in_t_arr_dic_str(shell->oper, arr[i]);
+        if (idx_oper != -1 && (idx_oper < 2 || idx_oper > 4))
+        {
+            file_access_redirection(shell, idx_oper, i);
+            ft_free((void **)&arr[i]);
+            if (i + 1 < len)
+                ft_free((void **)&arr[i + 1]);
+            for (int j = i + 2; j < len; j++)
+                arr[j - 2] = arr[j];
+            len -= 2;
+            shell->parsed_args->len -= 2;
+            arr[len] = NULL;
+            continue;
+        }
+        i++;
+    }
+    return shell->parsed_args->len;
 }
