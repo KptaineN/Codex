@@ -3,48 +3,58 @@
 
 int env_len(t_list *env)
 {
-    int count = 0;
+    int count;
 
+    count = 0;
     while (env)
     {
         count++;
         env = env->next;
     }
-    return count;
+    return (count);
 }
 
-char **env_to_envp(t_list *env)
+char    **list_to_envp(t_list *env)
 {
-    int     count = env_len(env);
-    char    **envp = malloc(sizeof(char *) * (count + 1));
-    int     i = 0;
+    int     count;
+    int     i;
+    char    **envp;
+    t_env   *cur;
+    int     klen;
+    int     vlen;
 
+    count = 0;
+    for (t_list *it = env; it; it = it->next)
+        if (((t_env *)it->content)->value)
+            count++;
+    envp = malloc(sizeof(char *) * (count + 1));
     if (!envp)
-        return NULL;
+        return (NULL);
+    i = 0;
     while (env)
     {
-        t_env *cur = env->content;
-        int klen = ft_strlen(cur->key);
-        int vlen = cur->value ? ft_strlen(cur->value) : 0;
-        envp[i] = malloc(klen + 1 + vlen + 1);
-        if (!envp[i])
-        {
-            while (i > 0)
-                free(envp[--i]);
-            free(envp);
-            return NULL;
-        }
-        ft_strcpy(envp[i], cur->key);
-        envp[i][klen] = '=';
+        cur = env->content;
         if (cur->value)
+        {
+            klen = ft_strlen(cur->key);
+            vlen = ft_strlen(cur->value);
+            envp[i] = malloc(klen + 1 + vlen + 1);
+            if (!envp[i])
+            {
+                while (i > 0)
+                    free(envp[--i]);
+                free(envp);
+                return (NULL);
+            }
+            ft_strcpy(envp[i], cur->key);
+            envp[i][klen] = '=';
             ft_strcpy(envp[i] + klen + 1, cur->value);
-        else
-            envp[i][klen + 1] = '\0';
+            i++;
+        }
         env = env->next;
-        i++;
     }
     envp[i] = NULL;
-    return envp;
+    return (envp);
 }
 
 void print_env(t_list *env)
