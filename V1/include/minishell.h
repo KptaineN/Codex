@@ -43,6 +43,12 @@ typedef struct s_list
     struct s_list   *next;
 }   t_list;
 
+typedef struct s_env
+{
+    char    *key;
+    char    *value;
+}   t_env;
+
 typedef struct s_arr
 {
     void            **arr;
