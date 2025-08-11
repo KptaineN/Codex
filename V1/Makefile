@@ -22,11 +22,13 @@ ALL_PATHS    := -I$(INC_DIR) -I$(LIBFT_INC)
 CC           := cc
 
 # FLAGS POUR RELEASE (par défaut)
-RELEASE_FLAGS := -Wall -Wextra -Werror $(ALL_PATHS)
+
+RELEASE_FLAGS := -Wall -Wextra -Werror -no-pie $(ALL_PATHS)
 RELEASE_LDFLAGS := -lreadline -no-pie
 
 # FLAGS POUR DEBUG (avec AddressSanitizer & debug info)
-DEBUG_FLAGS := -g -fsanitize=address -fno-omit-frame-pointer -Wall -Wextra -Werror $(ALL_PATHS)
+DEBUG_FLAGS := -g -fsanitize=address -fno-omit-frame-pointer -Wall -Wextra -Werror -no-pie $(ALL_PATHS)
+
 DEBUG_LDFLAGS := -lreadline -fsanitize=address -no-pie
 
 # Sera changé dynamiquement par la cible 'debug'
