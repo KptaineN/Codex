@@ -337,15 +337,11 @@ void execute_cmd(t_shell *shell, t_token *cmd)
     if (idx != -1)
     {
         int (*handler)(t_shell *, char **) = get_builtin_handler(shell->bcmd, idx);
-        //printf("DEBUG handler=%p idx=%d\n", handler, idx);
-		//printf("[CALL] handler=%p for %s\n", handler, args[0]);
-
-		if (handler)
+        if (handler)
         {
             shell->exit_status = handler(shell, args);
-            exit_shell(shell, shell->exit_status);
+            _exit(shell->exit_status);
         }
-        // En cas d’imprévu
         child_exit(args, NULL, NULL, NULL, 1);
     }
 
@@ -358,7 +354,7 @@ void execute_cmd(t_shell *shell, t_token *cmd)
     }
 
     /* 3) Préparation de l'envp et exec */
-    envp = env_to_envp(shell->env);
+    envp = list_to_envp(shell->env);
     execve(cmd_path, args, envp);
 
     /* 4) Si execve échoue, afficher l’erreur et cleanup */

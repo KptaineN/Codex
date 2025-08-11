@@ -196,7 +196,7 @@ int   export_no_arguments(t_shell *shell);
 int   process_export_argument(char *arg, t_shell *shell);
 /* --- Env --- */
 char    *get_env_value(t_list *env, const char *name);
-char    **env_to_envp(t_list *env);
+char    **list_to_envp(t_list *env);
 int     env_len(t_list *env);
 void    print_env(t_list *env);
 t_list  *init_env(char **envp);
