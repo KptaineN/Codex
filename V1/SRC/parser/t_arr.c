@@ -57,63 +57,26 @@ int is_in_t_arr_str(t_arr *arr, const char *arg)
 	For t_arr containing t_dic entries - searches by key
 	return (-1) not found
 	return (%d != -1) idx of the one found in the array
-*int is_in_t_arr_dic_str(t_arr *arr, const char *arg)
-{
-    int i = 0;
-    t_dic *dic;
-    int len_key;
-    int len_arg;
-    
-    if (!arr || !arg)
-        return (-1);
-    
-    len_arg = 1 + (arg[1]!= 0);
-    while (i < arr->len)
-    {
-        dic = (t_dic *)arr->arr[i];
-        char *str = dic->key;
-        (void)str;
-        len_key = ft_trlen(dic->key);
-        if (len_key<=len_arg)
-        {
-            if (dic && dic->key && ft_strncmp((char *)dic->key, arg, len_key) == 0)
-                return (i);
-        }
-        i++;
-    }
-    return (-1);
-}
 int is_in_t_arr_dic_str(t_arr *arr, const char *arg)
 { 
     if (!arr || !arr->arr || !arg)
         return (-1);
 
-    int i = 0;
-    t_dic *dic;
-    int len_key;
-    int len_arg;
-   
-    
-    len_arg = 1 + (arg[1]!= 0);
+    int     i;
+    t_dic  *dic;
+    size_t  len_key;
+
+    if (!arr || !arr->arr || !arg)
+        return (-1);
+    i = 0;
     while (i < arr->len)
     {
-        if (!arr->arr[i]) 
-        {
-             printf("ERREUR: arr->arr[%d] == NULL\n", i);
-            continue; // ou break;
-        }
         dic = (t_dic *)arr->arr[i];
-        if (!dic || !dic->key)
+        if (dic && dic->key)
         {
-            i++;
-            continue;
-        }
-        //char *str = dic->key;
-        len_key = ft_strlen(dic->key);
-        if (len_key<=len_arg)
-        {
+            len_key = ft_strlen(dic->key);
             if (ft_strncmp(dic->key, arg, len_key) == 0)
-                return (i);
+                return i;
         }
         i++;
     }

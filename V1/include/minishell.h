@@ -213,7 +213,7 @@ int     count_subtokens(const char *str);
 void    subtoken_of_cmd(t_subtoken_container *container, char *arg);
 int     find_c_nonescaped(const char *str, char *needle, int size_needle);
 bool    escape_check(const char *str, int idx);
-void    file_access_redirection(t_shell *shell, void **arr, int t_arr_index, int i);
+int     file_access_redirection(t_shell *shell, void **arr, int t_arr_index, int i);
 char *find_command_path(char *cmd, t_list *env);
 void     execute_cmd(t_shell *shell, t_token *cmd);
 //void     ft_itoa_inplace(char *buf, int n);
