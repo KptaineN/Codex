@@ -212,7 +212,9 @@ void    free_list_str(t_list *lst);
 void    push_lst(t_list **lst, void *content);
 
 char    *ft_strdup_count(const char *src, int *count);
-char    **linked_to_array_string(t_list *env);
+
+char    **expand_cmd(t_token *token, t_list *env);
+int (*get_builtin_handler(t_arr *bcmd, int idx))(t_shell *, char **);
 
 void free_str_array(char **arr);
 

@@ -124,24 +124,6 @@ char **linked_to_array_string(t_list *node)
     arr[len] = NULL;
     return arr;
 }*/
-char **linked_to_array_string(t_list *node)
-{
-    int len = 0;
-    t_list *tmp = node;
-    while (tmp) { len++; tmp = tmp->next; }
-    char **arr = malloc(sizeof(char *) * (len + 1));
-    int i = 0;
-    tmp = node;
-    while (tmp)
-    {
-        arr[i++] = ft_strdup(tmp->content);
-        tmp = tmp->next;
-    }
-    arr[i] = NULL;
-    return arr;
-}
-
-
 void ft_lstadd_front(t_list **lst, void *content)
 {
     t_list *new_node;
