@@ -91,70 +91,83 @@ int file_access_redirection(t_shell *shell, void **arr, int t_arr_index, int i)
 {
     char    *token;
     char    *op;
-    char    *fname;
-    char    *clean;
     int     consumed;
-    int     fd;
 
+    (void)shell;
     token = (char *)arr[i];
     op = ((t_dic *)shell->oper->arr[t_arr_index])->key;
     consumed = 1;
-    if ((int)ft_strlen(token) > (int)ft_strlen(op))
-        fname = token + ft_strlen(op);
-    else
-    {
-        fname = (char *)arr[i + 1];
+    if ((int)ft_strlen(token) == (int)ft_strlen(op))
         consumed = 2;
-    }
-    clean = strip_quotes(fname);
-    if (!clean)
-        return consumed;
-    if (t_arr_index == 5)
-    {
-        fd = open(clean, O_RDONLY);
-        if (fd < 0)
-            perror(clean);
-        else
-        {
-            if (shell->fd_in != STDIN_FILENO && shell->fd_in != -1)
-                close(shell->fd_in);
-            shell->fd_in = fd;
-        }
-    }
-    else if (t_arr_index == 6)
-    {
-        fd = open(clean, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-        if (fd < 0)
-            perror(clean);
-        else
-        {
-            if (shell->fd_out != STDOUT_FILENO && shell->fd_out != -1)
-                close(shell->fd_out);
-            shell->fd_out = fd;
-        }
-    }
-    else if (t_arr_index == 1)
-    {
-        fd = open(clean, O_CREAT | O_WRONLY | O_APPEND, 0644);
-        if (fd < 0)
-            perror(clean);
-        else
-        {
-            if (shell->fd_out != STDOUT_FILENO && shell->fd_out != -1)
-                close(shell->fd_out);
-            shell->fd_out = fd;
-        }
-    }
-    else if (t_arr_index == 0)
-    {
-        char *argv[3];
-        argv[0] = NULL;
-        argv[1] = clean;
-        argv[2] = NULL;
-        handle_heredoc(shell, argv);
-        clean = NULL; /* already used by heredoc */
-    }
-    free(clean);
     return consumed;
+}
+
+static void add_redir(t_token *tok, t_rtype type, const char *arg)
+{
+    t_redir *new_r;
+
+    new_r = realloc(tok->r, sizeof(t_redir) * (tok->r_count + 1));
+    if (!new_r)
+        return;
+    tok->r = new_r;
+    tok->r[tok->r_count].type = type;
+    tok->r[tok->r_count].arg = strip_quotes(arg);
+    tok->r_count++;
+}
+
+void assign_redirs(t_shell *shell)
+{
+    if (!shell || !shell->parsed_args || !shell->parsed_args->arr)
+        return;
+
+    char    **arr = (char **)shell->parsed_args->arr;
+    t_token *current = NULL;
+    int      cmd_idx = 0;
+
+    for (int i = 0; i < shell->parsed_args->len; )
+    {
+        int op_idx = is_in_t_arr_dic_str(shell->oper, arr[i]);
+        if (op_idx == -1)
+        {
+            if (!current && cmd_idx < shell->n_tokens)
+            {
+                current = &shell->tokens[cmd_idx++];
+            }
+            i++;
+        }
+        else if (op_idx < 2 || op_idx > 4)
+        {
+            if (current)
+            {
+                char *op = ((t_dic *)shell->oper->arr[op_idx])->key;
+                char *fname;
+                if ((int)ft_strlen(arr[i]) > (int)ft_strlen(op))
+                {
+                    fname = arr[i] + ft_strlen(op);
+                    i++;
+                }
+                else
+                {
+                    fname = arr[i + 1];
+                    i += 2;
+                }
+                if (op_idx == 5)
+                    add_redir(current, R_IN, fname);
+                else if (op_idx == 6)
+                    add_redir(current, R_OUT_TRUNC, fname);
+                else if (op_idx == 1)
+                    add_redir(current, R_OUT_APPEND, fname);
+                else if (op_idx == 0)
+                    add_redir(current, R_HEREDOC, fname);
+            }
+            else
+                i++;
+        }
+        else
+        {
+            current = NULL;
+            i++;
+        }
+    }
 }
 
