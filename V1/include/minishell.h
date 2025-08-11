@@ -92,6 +92,9 @@ typedef struct s_subtoken_container
     int             n_parts;
 }   t_subtoken_container;
 
+/* Forward declaration to allow pointers before full definition */
+typedef struct s_redir t_redir;
+
 typedef struct s_token
 {
     char                    type;
