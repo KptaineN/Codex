@@ -229,7 +229,6 @@ t_arr 	*custom_split(const char *str, t_shell * shell)
                         free(result);
                         perror("Erreur d'allocation pour les tokens");
                 }
-                printf("str %d:\t%s\n", token_index, (char *)result->arr[token_index]); //debug_print
                 token_index++;
         }
         result->arr[token_index] = NULL;

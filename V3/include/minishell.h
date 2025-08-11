@@ -237,6 +237,7 @@ int ft_env(t_shell *shell, char **argv);
 int ft_exit(t_shell *shell, char **argv);
 int handle_heredoc(t_shell *shell, char **argv);
 int handle_append(t_shell *shell, char **argv);
+char    *remove_quotes(const char *arg);
 
 int handle_and(t_shell *shell, char **argv);
 int handle_or(t_shell *shell, char **argv);

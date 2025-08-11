@@ -24,14 +24,13 @@ static int count_args_cmd(t_shell *shell, int i)
 	{
 		if (i==len)
 			break;
-		if (arr[i] != NULL)
-		{
-			printf("arg%d %s\n", i, arr[i]);
-			idx_oper = is_in_t_arr_dic_str(shell->oper, arr[i]);
-			if (idx_oper != -1)
-				return n_args;
-			n_args++;
-		}
+                if (arr[i] != NULL)
+                {
+                        idx_oper = is_in_t_arr_dic_str(shell->oper, arr[i]);
+                        if (idx_oper != -1)
+                                return n_args;
+                        n_args++;
+                }
 		i++;
 	}
 	return n_args;

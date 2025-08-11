@@ -27,13 +27,21 @@ static int  open_infile(t_shell *shell, const char *path)
 
 int handle_redirect_in(t_shell *shell, char **argv)
 {
+    char    *path;
+    int     ret;
+
     if (!argv || !argv[1])
     {
         ft_putendl_fd("minishell: syntax error near unexpected token `newline'",
             STDERR_FILENO);
         return (1);
     }
-    return (open_infile(shell, argv[1]));
+    path = remove_quotes(argv[1]);
+    if (!path)
+        return (1);
+    ret = open_infile(shell, path);
+    free(path);
+    return (ret);
 }
 
 static int  open_outfile(t_shell *shell, const char *path, int flags)
@@ -54,11 +62,19 @@ static int  open_outfile(t_shell *shell, const char *path, int flags)
 
 int handle_redirect_out(t_shell *shell, char **argv)
 {
+    char    *path;
+    int     ret;
+
     if (!argv || !argv[1])
     {
         ft_putendl_fd("minishell: syntax error near unexpected token `newline'",
             STDERR_FILENO);
         return (1);
     }
-    return (open_outfile(shell, argv[1], O_CREAT | O_TRUNC | O_WRONLY));
+    path = remove_quotes(argv[1]);
+    if (!path)
+        return (1);
+    ret = open_outfile(shell, path, O_CREAT | O_TRUNC | O_WRONLY);
+    free(path);
+    return (ret);
 }

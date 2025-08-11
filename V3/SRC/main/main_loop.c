@@ -16,24 +16,26 @@
 /*** 1) Lecture de l’input ***/
 char *read_user_input(void)
 {
-    char *input = readline("ᕕ( ᐛ )ᕗ minishell$ ");
-    if (!input)
-        write(1, "exit\n", 5);
+    char    *input;
+    bool    interactive;
 
-    /*
-    ** Exemple d'utilisation de get_next_line pour lire plusieurs lignes
-    ** et concaténer à l'entrée initiale 
-	util pour dquote
-	char *line;
-	while ((line = get_next_line(STDIN_FILENO))) {
-	    char *tmp = ft_strjoin(input, "\n");
-	    char *new = ft_strjoin(tmp, line);
-	    free(tmp);
-	    free(input);
-	    free(line);
-	    input = new;
-	}*/
- 
+    interactive = isatty(STDIN_FILENO);
+    if (interactive)
+        input = readline("ᕕ( ᐛ )ᕗ minishell$ ");
+    else
+        input = get_next_line(STDIN_FILENO);
+    if (!input)
+    {
+        if (interactive)
+            write(1, "exit\n", 5);
+        return (NULL);
+    }
+    if (!interactive)
+    {
+        size_t len = ft_strlen(input);
+        if (len > 0 && input[len - 1] == '\n')
+            input[len - 1] = '\0';
+    }
     return (input);
 }
 
@@ -104,7 +106,6 @@ int looping(t_shell *shell)
  
         // Attribution des types de tokens /
 		attribute_token_type(shell);
-		printf("DEBUG: BEFORE REINIT n_cmd = %d\n", shell->n_cmd);
 		//4) Tokenisation + attribution du type 
         //attribute_token_type(shell);
  
@@ -122,7 +123,6 @@ int looping(t_shell *shell)
             shell->cmd_head = fallback;
             shell->cmd_tail = fallback;
         }
-        printf("DEBUG: AFTER n_cmd = %d\n", shell->n_cmd);
 		// print_commands(shell->parser.cmd_head);
 		if (shell->n_cmd == 1) 
 		{
@@ -139,7 +139,6 @@ int looping(t_shell *shell)
 			perror("MALLOC pids");
 		// 5) Exécution
 		launch_process(shell);
-		printf("\nlast line\n");
 		// 6) Cleanup (ajuster selon ce qui est alloué)
 		free_tab((char **)shell->parsed_args->arr);
 		free(shell->parsed_args);

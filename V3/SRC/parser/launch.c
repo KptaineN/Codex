@@ -134,11 +134,8 @@ void one_command(t_shell *shell)
     
     if (pid == 0)
     {
-        int d; //debug
-        scanf("%d", &d); // debug
-        
         close(fd[1]);
-        close(fd_pid[0]);  
+        close(fd_pid[0]);
         add_pid_env(shell,fd_pid[0]);
         close(fd[0]);
         close(fd_pid[0]);
