@@ -5,8 +5,10 @@
 PROJECT_DIR  := .
 SRC_DIR      := $(PROJECT_DIR)/SRC
 INC_DIR      := $(PROJECT_DIR)/include
-SUBDIRS      := built env exec from_pipex handle_utils handle_utils/handler_cast_t_shell handle_utils/handler_operator main old_parser parser signal built/echo built/export
-
+SUBDIRS      := built env exec from_pipex \
+                handle_utils handle_utils/handler_cast_t_shell \
+                handle_utils/handler_operator redir main old_ \
+                parser signal built/echo built/export
 LIBFT_INC    := $(INC_DIR)/LIBFT
 LIBFT_DIR    := $(INC_DIR)/LIBFT
 LIBFT_A      := $(LIBFT_DIR)/libft.a
