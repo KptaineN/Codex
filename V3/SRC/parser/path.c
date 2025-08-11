@@ -230,9 +230,9 @@ char **expand_cmd(t_token *token, t_list *env)
 	int i;
 	t_subtoken_container *a;
 	t_list *head = ft_lstnew(NULL);
-	char **res = malloc(sizeof(char *)*(token->n_parts)); //omits first
-	if (!res)
-		perror("MALLOC expand_cmd");
+        char **res = malloc(sizeof(char *) * (token->n_parts + 1)); // +1 for NULL terminator
+        if (!res)
+                perror("MALLOC expand_cmd");
 
 
 	// input "hello"a 'mom' 
@@ -240,15 +240,14 @@ char **expand_cmd(t_token *token, t_list *env)
 	// {hello,a}, {mom} subtoken
 	// {h,e,l,l,o} char * 
 	i = 0;
-	while(i<token->n_parts) // container
-	{
-		a = &token->cmd_args_parts[i];
-		res[i] = expand_container(a,&head,env); 
-		//printf("%s\n", res[i]);
-		i++;
-	}
-	res[i] = NULL;
-	return res;
+        while (i < token->n_parts)
+        {
+                a = &token->cmd_args_parts[i];
+                res[i] = expand_container(a, &head, env);
+                i++;
+        }
+        res[i] = NULL;
+        return res;
 }
 
 
