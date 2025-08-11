@@ -80,6 +80,11 @@ void free_list_str(t_list *lst)
         lst = tmp;
     }
 }
+
+void free_env(t_list *env)
+{
+    free_list_str(env);
+}
 void free_str_array(char **arr)
 {
     if (!arr) {
