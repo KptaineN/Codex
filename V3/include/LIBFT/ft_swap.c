@@ -1,26 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   cmd.c                                              :+:      :+:    :+:   */
+/*   ft_swap.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nkiefer <nkiefer@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/25 22:41:19 by eganassi          #+#    #+#             */
-/*   Updated: 2025/08/07 15:27:58 by nkiefer          ###   ########.fr       */
+/*   Created: 2025/02/06 16:48:24 by nkiefer           #+#    #+#             */
+/*   Updated: 2025/07/03 04:17:11 by nkiefer          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/minishell.h"
+#include "libft.h"
 
-bool is_command(char *str, t_list *env)
+void	ft_swap(int *a, int *b)
 {
-    char *cmd_path;
+	int	tmp;
 
-    cmd_path = find_command_path(str, env);
-    if (cmd_path)
-    {
-        free(cmd_path);
-        return (1);
-    }
-    return (0);
+	tmp = *a;
+	*a = *b;
+	*b = tmp;
+}
+
+void ft_swap_str(char **a, char **b)
+{
+    char *tmp = *a;
+    *a = *b;
+    *b = tmp;
 }

@@ -1,26 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   cmd.c                                              :+:      :+:    :+:   */
+/*   ft_isspace.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nkiefer <nkiefer@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nkiefer <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/25 22:41:19 by eganassi          #+#    #+#             */
-/*   Updated: 2025/08/07 15:27:58 by nkiefer          ###   ########.fr       */
+/*   Created: 2025/02/07 09:28:17 by nkiefer           #+#    #+#             */
+/*   Updated: 2025/02/07 09:28:19 by nkiefer          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/minishell.h"
+#include "libft.h"
 
-bool is_command(char *str, t_list *env)
+int	ft_isspace(int c)
 {
-    char *cmd_path;
-
-    cmd_path = find_command_path(str, env);
-    if (cmd_path)
-    {
-        free(cmd_path);
-        return (1);
-    }
-    return (0);
+	if (c == 9 || c == 10 || c == 11 || c == 12 || c == 13 || c == 32)
+	{
+		return (1);
+	}
+	return (0);
 }
