@@ -99,6 +99,8 @@ typedef struct s_token
     t_subtoken_container    *cmd_args_parts;
     struct s_token          *next;
    int                     n_args;
+   t_redir                 *r;
+   int                     r_count;
 }   t_token;
 
 /* =============================
@@ -207,6 +209,7 @@ char    *find_env_value(t_list *env, const char *key);
 t_arr   *custom_split(const char *str, t_shell *shell);
 int     count_tokens(t_shell *shell, t_arr *parsed_args, t_arr *oper);
 void    attribute_token_type(t_shell *shell);
+void    assign_redirs(t_shell *shell);
 int     count_args_cmd(t_shell *shell, int i);
 int     attribute_cmd_subtokens(t_shell *shell, t_token *cmd_token, int idx, int len);
 int     count_subtokens(const char *str);

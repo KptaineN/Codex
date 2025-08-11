@@ -160,6 +160,13 @@ void free_tokens(t_shell *shell)
             
           //  printf("[DEBUG] free_tokens 156: freed cmd_args_parts of token '%s'\n", tok->value);
         }
+        if (tok->r)
+        {
+            for (int j = 0; j < tok->r_count; j++)
+                free(tok->r[j].arg);
+            free(tok->r);
+            tok->r = NULL;
+        }
         // Si value = strdup/ft_substr => free, sinon ne pas toucher
         // (mais dans ton parsing c’est souvent juste un pointeur du split, donc ne rien faire)
     }

@@ -212,6 +212,7 @@ int looping(t_shell *shell)
 
         /* Attribution des types */
         attribute_token_type(shell);
+        assign_redirs(shell);
 
         build_cmd_list(shell);
         if (shell->n_tokens > 0 && shell->n_cmd == 0)

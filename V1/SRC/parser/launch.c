@@ -101,9 +101,14 @@ int start_cmd(t_shell *shell, int *prev_pipe, int *curr_pipe, t_list *curr_cmd)
         close(curr_pipe[1]);
         close(shell->fd_pid[0]);
         close(shell->fd_pid[1]);
-        //execute(shell, curr_cmd->content);
-        execute_cmd(shell, (t_token *)curr_cmd->content);
-        exit(1);
+        t_token *tok = (t_token *)curr_cmd->content;
+        t_cmd    tmp = {0};
+        tmp.r = tok->r;
+        tmp.r_count = tok->r_count;
+        if (apply_redirs_in_child(&tmp, shell))
+            _exit(1);
+        execute_cmd(shell, tok);
+        _exit(1);
     }
 
     if (shell->fd_in != STDIN_FILENO)
@@ -141,9 +146,14 @@ int end_cmd(t_shell *shell, int *prev_pipe, t_list *curr_cmd)
 
         dup2(shell->fd_out, STDOUT_FILENO);
         close(shell->fd_out);
-        // Execute
-        execute_cmd(shell, (t_token *)curr_cmd->content);
-        exit(1);
+        t_token *tok = (t_token *)curr_cmd->content;
+        t_cmd    tmp = {0};
+        tmp.r = tok->r;
+        tmp.r_count = tok->r_count;
+        if (apply_redirs_in_child(&tmp, shell))
+            _exit(1);
+        execute_cmd(shell, tok);
+        _exit(1);
     }
     send_pid(shell->fd_pid[1], pid);
     close(shell->fd_pid[0]);
@@ -212,9 +222,14 @@ void one_command(t_shell *shell)
         dup2(shell->fd_out, STDOUT_FILENO);
         close(shell->fd_out);
        // execute_cmd(shell, shell->parser.cmd_head);
-        execute_cmd(shell, (t_token *)shell->cmd_head->content);
-        //execute(shell, shell->parser.cmd_head->content);
-        exit(1);
+        t_token *tok = (t_token *)shell->cmd_head->content;
+        t_cmd    tmp = {0};
+        tmp.r = tok->r;
+        tmp.r_count = tok->r_count;
+        if (apply_redirs_in_child(&tmp, shell))
+            _exit(1);
+        execute_cmd(shell, tok);
+        _exit(1);
     }
     else
     close(fd[0]);  // Close read end
@@ -284,8 +299,14 @@ void launch_process(t_shell *shell)
                 close(pipe_fd[0]);
                 close(pipe_fd[1]);
             }
-            execute_cmd(shell, (t_token *)curr_cmd->content);
-            exit(EXIT_FAILURE);
+            t_token *tok = (t_token *)curr_cmd->content;
+            t_cmd    tmp = {0};
+            tmp.r = tok->r;
+            tmp.r_count = tok->r_count;
+            if (apply_redirs_in_child(&tmp, shell))
+                _exit(1);
+            execute_cmd(shell, tok);
+            _exit(EXIT_FAILURE);
         }
 
         /* ——— Le PARENT ——— */
