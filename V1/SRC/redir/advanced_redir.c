@@ -237,6 +237,7 @@ static int run_builtin(t_cmd *c, t_shell *sh)
     return 0;
 }
 
+
 static char *resolve_path(const char *cmd, t_shell *sh)
 {
     (void)sh;
@@ -259,7 +260,13 @@ void child_exec_maillon(t_cmd *c, t_shell *sh, int i, int ncmd, int p[][2])
         _exit(1);
     if (c->is_builtin)
         _exit(run_builtin(c, sh));
+
     char **envp = env_to_envp(sh->env);
+
+
+    //char **envp = list_to_envp(sh->env);
+
+
     execve(resolve_path(c->argv[0], sh), c->argv, envp);
     perror("execve");
     _exit(127);
