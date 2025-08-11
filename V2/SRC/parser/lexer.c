@@ -84,7 +84,7 @@ int attribute_cmd_subtokens(t_shell *shell, t_token *cmd_token, int idx, int len
 	t_arr *arr_arg = shell->parsed_args;
 	char *curr_arg;
 	int idx_container = 0;
-	cmd_token->cmd_args_parts = malloc(sizeof(t_subtoken_container *)*len);
+        cmd_token->cmd_args_parts = malloc(sizeof(t_subtoken_container) * len);
 	arr_container = cmd_token->cmd_args_parts;
 	if (!arr_container)
 		return -1;

@@ -156,7 +156,6 @@ void free_tokens(t_shell *shell)
             }
             free(tok->cmd_args_parts);
             if (tok->value) {
-                free(tok->value);
                 tok->value = NULL;
             }
             
