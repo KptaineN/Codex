@@ -13,30 +13,22 @@ size_t env_count(t_shell *shell)
     return count;
 }
 
-// Si tu stockes des char* dans content
-char *create_env_entry(char *env_line)
-{
-    return ft_strdup(env_line);
-}
-
-/**
-char *create_env_entry(t_list *env)
+char *create_env_entry(t_env *env)
 {
     size_t klen = ft_strlen(env->key);
     size_t vlen = env->value ? ft_strlen(env->value) : 0;
     char *entry = malloc(klen + vlen + 2);
-    if (!entry) return NULL;
+    if (!entry)
+        return NULL;
 
     ft_strcpy(entry, env->key);
+    entry[klen] = '=';
     if (env->value)
-    {
-        entry[klen] = '=';
         ft_strcpy(entry + klen + 1, env->value);
-    }
-    else entry[klen] = '\0';
-
+    else
+        entry[klen + 1] = '\0';
     return entry;
-}**/
+}
 
 char **env_to_array(t_shell *shell)
 {
@@ -47,8 +39,8 @@ char **env_to_array(t_shell *shell)
     size_t i = 0;
     for (t_list *node = shell->env; node; node = node->next)
     {
-        t_list *env = (t_list *)node->content;
-        arr[i] = create_env_entry((char*)env->content);
+        t_env *env = (t_env *)node->content;
+        arr[i] = create_env_entry(env);
         if (!arr[i])
         {
             free_export_arr(arr);

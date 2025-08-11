@@ -27,6 +27,6 @@ t_list *find_env_var(t_shell *shell, const char *key);
 int update_env_var(t_list *env, const char *value);
 int create_env_var(t_shell *shell, const char *key, const char *value);
 int set_env_var(t_shell *shell, const char *key, const char *value);
-char *create_env_entry(char *env_line);
+char *create_env_entry(t_env *env);
 
 #endif

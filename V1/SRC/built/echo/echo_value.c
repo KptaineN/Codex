@@ -15,12 +15,11 @@ static char *find_env_value(t_list *env_list, const char *key)
 }*/
 char *find_env_value(t_list *env, const char *key)
 {
-    size_t keylen = ft_strlen(key);
     while (env)
     {
-        char *entry = (char *)env->content;
-        if (ft_strncmp(entry, key, keylen) == 0 && entry[keylen] == '=')
-            return entry + keylen + 1;
+        t_env *entry = env->content;
+        if (ft_strcmp(entry->key, key) == 0)
+            return entry->value;
         env = env->next;
     }
     return NULL;

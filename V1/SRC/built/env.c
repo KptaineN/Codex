@@ -64,10 +64,9 @@ int builtin_env(t_shell *shell, char **args)
     t_list *cur = shell->env;
     while (cur)
     {
-        // On n’affiche que les entrées contenant '='
-        char *entry = (char *)cur->content;
-        if (ft_strchr(entry, '=')) // Affiche seulement si c'est une vraie variable d'env
-            printf("%s\n", entry);
+        t_env *env = cur->content;
+        if (env->value)
+            printf("%s=%s\n", env->key, env->value);
         cur = cur->next;
     }
     shell->exit_status = 0;

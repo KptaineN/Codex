@@ -6,24 +6,26 @@
 
 static void unset_one(t_list **env, const char *key)
 {
-    t_list *prev = NULL, *cur = *env;
+    t_list *prev = NULL;
+    t_list *cur = *env;
+
     while (cur)
     {
-        char *equal = strchr((char*)cur->content, '=');
-        if (equal)
+        t_env *env_var = cur->content;
+        if (ft_strcmp(env_var->key, key) == 0)
         {
-            size_t key_len = strlen(key);
-            if ((size_t)(equal - (char*)cur->content) == key_len && !strncmp((char*)cur->content, key, key_len))
-            {
-                if (prev) prev->next = cur->next;
-                else      *env = cur->next;
-                free(cur->content);
-                free(cur);
-                return;
-            }
+            if (prev)
+                prev->next = cur->next;
+            else
+                *env = cur->next;
+            free(env_var->key);
+            free(env_var->value);
+            free(env_var);
+            free(cur);
+            return;
         }
         prev = cur;
-        cur  = cur->next;
+        cur = cur->next;
     }
 }
 
@@ -41,20 +43,21 @@ int builtin_unset(t_shell *shell, char **argv)
 }
 void unset_env_value(t_list **env, const char *key)
 {
-    t_list *tmp = *env, *prev = NULL;
-    size_t key_len = ft_strlen(key);
+    t_list *tmp = *env;
+    t_list *prev = NULL;
 
     while (tmp)
     {
-        char *content = (char*)tmp->content;
-        char *equal = ft_strchr(content, '=');
-        if (equal && (size_t)(equal - content) == key_len && !ft_strncmp(content, key, key_len))
+        t_env *env_var = tmp->content;
+        if (ft_strcmp(env_var->key, key) == 0)
         {
             if (prev)
                 prev->next = tmp->next;
             else
                 *env = tmp->next;
-            free(tmp->content);
+            free(env_var->key);
+            free(env_var->value);
+            free(env_var);
             free(tmp);
             return;
         }

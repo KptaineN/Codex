@@ -350,7 +350,8 @@ void print_env_debug(t_list *env)
 {
     while (env)
     {
-        printf("[DEBUG] %s\n", (char*)env->content);
+        t_env *e = env->content;
+        printf("[DEBUG] %s=%s\n", e->key, e->value ? e->value : "");
         env = env->next;
     }
 }
