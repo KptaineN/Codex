@@ -173,20 +173,43 @@ void assign_redirs(t_shell *shell)
         }
         else if (op_idx < 2 || op_idx > 4)
         {
+            char *op = ((t_dic *)shell->oper->arr[op_idx])->key;
+            char *fname;
+            if ((int)ft_strlen(arr[i]) > (int)ft_strlen(op))
+            {
+                fname = arr[i] + ft_strlen(op);
+                i++;
+            }
+            else
+            {
+                fname = arr[i + 1];
+                i += 2;
+            }
+            if (!fname || *fname == '\0')
+            {
+                ft_putstr_fd((char *)"minishell: missing file name for redirection\n", STDERR_FILENO);
+                shell->exit_status = 1;
+                shell->n_tokens = 0;
+                return;
+            }
+            int fd = -1;
+            if (op_idx == 5)
+                fd = open(fname, O_RDONLY);
+            else if (op_idx == 6)
+                fd = open(fname, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+            else if (op_idx == 1)
+                fd = open(fname, O_CREAT | O_WRONLY | O_APPEND, 0644);
+            if (fd < 0 && op_idx != 0)
+            {
+                perror(fname);
+                shell->exit_status = 1;
+                shell->n_tokens = 0;
+                return;
+            }
+            if (fd >= 0)
+                close(fd);
             if (current)
             {
-                char *op = ((t_dic *)shell->oper->arr[op_idx])->key;
-                char *fname;
-                if ((int)ft_strlen(arr[i]) > (int)ft_strlen(op))
-                {
-                    fname = arr[i] + ft_strlen(op);
-                    i++;
-                }
-                else
-                {
-                    fname = arr[i + 1];
-                    i += 2;
-                }
                 if (op_idx == 5)
                     add_redir(current, R_IN, fname);
                 else if (op_idx == 6)
@@ -196,8 +219,6 @@ void assign_redirs(t_shell *shell)
                 else if (op_idx == 0)
                     add_redir(current, R_HEREDOC, fname);
             }
-            else
-                i++;
         }
         else
         {
