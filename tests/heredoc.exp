@@ -1,0 +1,25 @@
+#!/usr/bin/expect -f
+set timeout 5
+spawn ./V1/minishell
+
+# Test: no expansion when delimiter is quoted
+expect -re {minishell\$ }
+send "cat << 'EOF'\n"
+expect "> "
+send "\$PWD\n"
+expect "> "
+send "EOF\n"
+expect "\$PWD\r\n"
+expect -re {minishell\$ }
+
+# Test: Ctrl+C cancels heredoc
+send "cat << EOF\n"
+expect "> "
+send "\003"
+expect -re {minishell\$ }
+send "echo $?\n"
+expect "130\r\n"
+expect -re {minishell\$ }
+
+send "exit\n"
+expect eof

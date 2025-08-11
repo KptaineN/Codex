@@ -82,15 +82,24 @@ static char *expand_filename_if_needed(char *arg, t_shell *sh)
     return res;
 }
 
-/* ----- création d’un pipe heredoc et remplissage via get_next_line ----- */
+/* ----- création d’un pipe heredoc et remplissage via readline ----- */
 int build_heredoc_fd(t_delim d, t_shell *sh)
 {
     int     hd[2];
     pid_t   pid;
 
+    struct sigaction    sa_ignore;
+
+    sa_ignore.sa_handler = SIG_IGN;
+    sigemptyset(&sa_ignore.sa_mask);
+    sa_ignore.sa_flags = 0;
+    sigaction(SIGINT, &sa_ignore, NULL);
+    sigaction(SIGQUIT, &sa_ignore, NULL);
+
     if (pipe(hd) < 0)
     {
         perror("pipe");
+        init_signals();
         return -1;
     }
     pid = fork();
@@ -99,23 +108,22 @@ int build_heredoc_fd(t_delim d, t_shell *sh)
         perror("fork");
         close(hd[0]);
         close(hd[1]);
+        init_signals();
         return -1;
     }
     if (pid == 0)
     {
         char    *line;
-        size_t  n;
 
         signal(SIGINT, SIG_DFL);
+        signal(SIGQUIT, SIG_IGN);
+        rl_catch_signals = 0;
         close(hd[0]);
         while (1)
         {
-            line = get_next_line(STDIN_FILENO);
+            line = readline("> ");
             if (!line)
                 break;
-            n = ft_strlen(line);
-            if (n && line[n - 1] == '\n')
-                line[n - 1] = '\0';
             if (ft_strcmp(line, d.clean) == 0)
             {
                 free(line);
@@ -137,6 +145,7 @@ int build_heredoc_fd(t_delim d, t_shell *sh)
     close(hd[1]);
     int status;
     waitpid(pid, &status, 0);
+    init_signals();
     if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
     {
         close(hd[0]);
