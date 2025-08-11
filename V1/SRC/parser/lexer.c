@@ -76,52 +76,19 @@ int count_args_cmd(t_shell *shell, int i)
 }
 
 
-void file_access_redirection(t_shell *shell, void **arr, int t_arr_index, int i)
+void file_access_redirection(t_shell *shell, int t_arr_index, int i)
 {
-	if (i + 1 >= shell->n_tokens)
-		perror("Argument manquant pour l'opérateur");
+    char    **argv;
 
-	if (t_arr_index == 5)
-	{
-		if (shell->fd_in != -1)
-		{
-			shell->fd_in = open(arr[i + 1], O_RDONLY);
-			if (shell->fd_in < 0)
-				perror("Erreur lors de l'ouverture en lecture");
-		}
-		else if (access(arr[i + 1], O_RDONLY) < 0)
-		{
-			perror("ERROR ACCESS");
-		}
-		return;
-	}
-
-	// sortie 
-	if (shell->fd_out != -1)
-	{
-		if (t_arr_index == 1)
-		{
-			shell->fd_out = open(arr[i + 1], O_CREAT | O_RDWR | O_APPEND, 0644);
-			if (shell->fd_out < 0)
-				perror("Erreur lors de l'ouverture en écriture (append)");
-		}
-		else if (t_arr_index == 6)
-		{
-			shell->fd_out = open(arr[i + 1], O_CREAT | O_RDWR, 0644);
-			if (shell->fd_out < 0)
-				perror("Erreur lors de l'ouverture en écriture (trunc)");
-		}
-		return;
-	}
-
-	if (t_arr_index == 1)
-	{
-		if (access(arr[i + 1], O_CREAT | O_RDWR | O_APPEND | O_TRUNC) < 0)
-			perror("Erreur lors de l'ouverture en écriture (append)");
-	}
-	else if (t_arr_index == 6)
-	{
-		if (access(arr[i + 1], O_CREAT | O_RDWR | O_TRUNC) < 0)
-			perror("Erreur lors de l'ouverture en écriture (trunc)");
-	}
+    if (!shell || !shell->parsed_args || i < 0)
+        return;
+    argv = (char **)&shell->parsed_args->arr[i];
+    if (t_arr_index == 0)
+        handle_heredoc(shell, argv);
+    else if (t_arr_index == 1)
+        handle_append(shell, argv);
+    else if (t_arr_index == 5)
+        handle_redirect_in(shell, argv);
+    else if (t_arr_index == 6)
+        handle_redirect_out(shell, argv);
 }

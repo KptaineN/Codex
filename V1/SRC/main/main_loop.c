@@ -16,24 +16,26 @@
 /*** 1) Lecture de l’input ***/
 char *read_user_input(void)
 {
-    char *input = readline("ᕕ( ᐛ )ᕗ minishell$ ");
-    if (!input)
-        write(1, "exit\n", 5);
+    char    *input;
+    bool    interactive;
 
-    /*
-    ** Exemple d'utilisation de get_next_line pour lire plusieurs lignes
-    ** et concaténer à l'entrée initiale 
-	util pour dquote
-	char *line;
-	while ((line = get_next_line(STDIN_FILENO))) {
-	    char *tmp = ft_strjoin(input, "\n");
-	    char *new = ft_strjoin(tmp, line);
-	    free(tmp);
-	    free(input);
-	    free(line);
-	    input = new;
-	}*/
- 
+    interactive = isatty(STDIN_FILENO);
+    if (interactive)
+        input = readline("ᕕ( ᐛ )ᕗ minishell$ ");
+    else
+        input = get_next_line(STDIN_FILENO);
+    if (!input)
+    {
+        if (interactive)
+            write(1, "exit\n", 5);
+        return (NULL);
+    }
+    if (!interactive)
+    {
+        size_t len = ft_strlen(input);
+        if (len > 0 && input[len - 1] == '\n')
+            input[len - 1] = '\0';
+    }
     return (input);
 }
 

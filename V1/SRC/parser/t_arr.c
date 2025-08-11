@@ -97,10 +97,9 @@ int is_in_t_arr_dic_str(t_arr *arr, const char *arg)
     len_arg = 1 + (arg[1]!= 0);
     while (i < arr->len)
     {
-        if (!arr->arr[i]) 
+        if (!arr->arr[i])
         {
-             printf("ERREUR: arr->arr[%d] == NULL\n", i);
-            continue; // ou break;
+            continue;
         }
         dic = (t_dic *)arr->arr[i];
         if (!dic || !dic->key)
@@ -174,7 +173,6 @@ void build_t_arr_dic_str(t_arr **dst, char **keys, void **values, int len)
         (*dst)->arr[i] = &temp[i];                  // point into temp[]
         if (!temp[i].key)
             return;
-        printf("%s\t%p\n", (char *)temp[i].key, (int*)temp[i].value);
         i++;
     }
 }

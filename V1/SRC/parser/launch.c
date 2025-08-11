@@ -198,11 +198,8 @@ void one_command(t_shell *shell)
         execute_cmd(shell, shell->parser.cmd_head);
         exit(0); // On quitte le process enfant
     }*/
-        int d; //debug
-        scanf("%d", &d); // debug
-        
         close(fd[1]);
-        close(fd_pid[0]);  
+        close(fd_pid[0]);
         add_pid_env(shell,fd_pid[0]);
         close(fd[0]);
         close(fd_pid[0]);

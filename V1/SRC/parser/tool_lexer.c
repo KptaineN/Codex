@@ -121,7 +121,7 @@ int count_tokens(t_shell *shell, t_arr *parsed_args, t_arr *oper)
         {
             if (idx_oper < 2 || idx_oper > 4)
             {
-                file_access_redirection(shell, parsed_args->arr, idx_oper, i);
+                file_access_redirection(shell, idx_oper, i);
                 i += 2;
                 continue;
             }
