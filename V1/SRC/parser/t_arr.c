@@ -202,24 +202,20 @@ int is_in_t_arr_str(t_arr *arr, const char *arg)
 }
 
 /*
-    Pareil mais avec tolérance de longueur clé/arg (useless pour des builtins stricts, mais gardé si besoin)
+    Pareil mais avec tolérance de longueur clé/arg (utile pour les opérateurs).
 */
 int is_in_t_arr_dic_str(t_arr *arr, const char *arg)
-{ 
+{
     if (!arr || !arr->arr || !arg)
         return -1;
 
     for (int i = 0; i < arr->len; i++)
     {
-        if (!arr->arr[i]) {
-            printf("ERREUR: arr->arr[%d] == NULL\n", i);
-            continue;
-        }
         t_dic *dic = (t_dic *)arr->arr[i];
         if (!dic || !dic->key)
             continue;
-        // On fait une comparaison stricte
-        if (ft_strcmp(dic->key, arg) == 0)
+        size_t len_key = ft_strlen(dic->key);
+        if (ft_strncmp(dic->key, arg, len_key) == 0)
             return i;
     }
     return -1;
