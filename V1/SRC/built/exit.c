@@ -19,49 +19,96 @@ int	is_numeric(const char *str)
 
 int builtin_exit(t_shell *shell, char **argv)
 {
-    long code = 0;
+	long code = 0;
 
-    write(1, "exit\n", 5);
+	write(1, "exit\n", 5);
 
-    if (argv[1]) // y a-t-il un argument après "exit" ?
-    {
-        if (!is_numeric(argv[1]))
-        {
-            ft_putstr_fd("minishell: exit: numeric argument required\n", 2);
-            exit_shell(shell, 255);
-        }
-        if (argv[2]) // trop d'arguments
-        {
-            ft_putstr_fd("minishell: exit: too many arguments\n", 2);
-            return (1);
-        }
-        code = ft_atoi(argv[1]);
-        exit_shell(shell, code % 256);
-    }
-    exit_shell(shell, 0);
-    return 0;
+	if (argv[1]) // y a-t-il un argument après "exit" ?
+	{
+	    if (!is_numeric(argv[1]))
+	    {
+	        ft_putstr_fd("minishell: exit: numeric argument required\n", 2);
+	        exit_shell(shell, 255);
+	    }
+	    if (argv[2]) // trop d'arguments
+	    {
+	        ft_putstr_fd("minishell: exit: too many arguments\n", 2);
+	        return (1);
+	    }
+	    code = ft_atoi(argv[1]);
+	    exit_shell(shell, code % 256);
+	}
+	exit_shell(shell, 0);
+	return 0;
 }
 
 
-char	*replace_exit_code(const char *input, int code)
+char *replace_exit_code(const char *input, int code)
 {
-	char	*res = ft_strdup(input);
-	char	*pos;
-	char	*code_str = ft_itoa(code);
+	bool in_sq;
+	bool in_dq;
+	size_t i;
+	size_t j;
+	size_t count;
+	char *code_str;
+	size_t code_len;
+	char *res;
 
-	while ((pos = ft_strnstr(res, "$?", ft_strlen(res))))
+	if (!input)
+	    return (NULL);
+	code_str = ft_itoa(code);
+	if (!code_str)
+	    return (NULL);
+	code_len = ft_strlen(code_str);
+	in_sq = false;
+	in_dq = false;
+	count = 0;
+	i = 0;
+	while (input[i])
 	{
-		*pos = '\0';
-		char *before = ft_strdup(res);
-		char *after = ft_strdup(pos + 2);
-		char *tmp = ft_strjoin(before, code_str);
-		char *new_res = ft_strjoin(tmp, after);
-		free(res);
-		free(before);
-		free(after);
-		free(tmp);
-		res = new_res;
+	    if (input[i] == '\'' && !in_dq)
+	        in_sq = !in_sq;
+	    else if (input[i] == '"' && !in_sq)
+	        in_dq = !in_dq;
+	    else if (input[i] == '$' && input[i + 1] == '?' && !in_sq)
+	    {
+	        count++;
+	        i++;
+	    }
+	    i++;
 	}
+	res = malloc(ft_strlen(input) + count * (code_len - 2) + 1);
+	if (!res)
+	{
+	    free(code_str);
+	    return (NULL);
+	}
+	in_sq = false;
+	in_dq = false;
+	i = 0;
+	j = 0;
+	while (input[i])
+	{
+	    if (input[i] == '\'' && !in_dq)
+	    {
+	        in_sq = !in_sq;
+	        res[j++] = input[i++];
+	    }
+	    else if (input[i] == '"' && !in_sq)
+	    {
+	        in_dq = !in_dq;
+	        res[j++] = input[i++];
+	    }
+	    else if (input[i] == '$' && input[i + 1] == '?' && !in_sq)
+	    {
+	        ft_memcpy(res + j, code_str, code_len);
+	        j += code_len;
+	        i += 2;
+	    }
+	    else
+	        res[j++] = input[i++];
+	}
+	res[j] = '\0';
 	free(code_str);
 	return (res);
 }
@@ -146,93 +193,93 @@ char	*replace_exit_code(const char *input, int exit_code)
 // Tu peux l’appeler update_env(shell->env, key, value);
 int update_env_var(t_env **env, const char *key, const char *value)
 {
-    t_env *node = *env;
+	t_env *node = *env;
 
-    // Cherche la clé existante
-    while (node)
-    {
-        if (strcmp(node->key, key) == 0)
-        {
-            // remplace sans leak
-            free(node->value);
-            node->value = strdup(value);
-            return (node->value ? 0 : -1);
-        }
-        node = node->next;
-    }
+	// Cherche la clé existante
+	while (node)
+	{
+	    if (strcmp(node->key, key) == 0)
+	    {
+	        // remplace sans leak
+	        free(node->value);
+	        node->value = strdup(value);
+	        return (node->value ? 0 : -1);
+	    }
+	    node = node->next;
+	}
 
-    // Si pas trouvée, on ajoute en tête
-    t_env *new = malloc(sizeof(*new));
-    if (!new) return -1;
-    new->key   = strdup(key);
-    new->value = strdup(value);
-    if (!new->key || !new->value)
-    {
-        free(new->key);
-        free(new->value);
-        free(new);
-        return -1;
-    }
-    new->next = *env;
-    *env      = new;
-    return 0;
+	// Si pas trouvée, on ajoute en tête
+	t_env *new = malloc(sizeof(*new));
+	if (!new) return -1;
+	new->key   = strdup(key);
+	new->value = strdup(value);
+	if (!new->key || !new->value)
+	{
+	    free(new->key);
+	    free(new->value);
+	    free(new);
+	    return -1;
+	}
+	new->next = *env;
+	*env      = new;
+	return 0;
 }
 
 
 int builtin_cd(char **args, t_shell *shell)
 {
-    char old_pwd[PATH_MAX];
-    char new_pwd[PATH_MAX];
-    char *target;
+	char old_pwd[PATH_MAX];
+	char new_pwd[PATH_MAX];
+	char *target;
 
-    // 1) Ancien PWD
-    if (getcwd(old_pwd, sizeof(old_pwd)) == NULL)
-    {
-        perror("getcwd");
-        shell->exit_status = 1;
-        return 1;
-    }
+	// 1) Ancien PWD
+	if (getcwd(old_pwd, sizeof(old_pwd)) == NULL)
+	{
+	    perror("getcwd");
+	    shell->exit_status = 1;
+	    return 1;
+	}
 
-    // 2) Choix du répertoire cible
-    if (!args[1] || args[1][0] == '\0')
-        target = getenv("HOME");  // ou find_env_value(shell->env, "HOME")
-    else if (strcmp(args[1], "-") == 0)
-        target = getenv("OLDPWD"); // idem : à récupérer dans shell->env
-    else
-        target = args[1];
+	// 2) Choix du répertoire cible
+	if (!args[1] || args[1][0] == '\0')
+	    target = getenv("HOME");  // ou find_env_value(shell->env, "HOME")
+	else if (strcmp(args[1], "-") == 0)
+	    target = getenv("OLDPWD"); // idem : à récupérer dans shell->env
+	else
+	    target = args[1];
 
-    if (!target)
-    {
-        fprintf(stderr, "cd: HOME not set\n");
-        shell->exit_status = 1;
-        return 1;
-    }
+	if (!target)
+	{
+	    fprintf(stderr, "cd: HOME not set\n");
+	    shell->exit_status = 1;
+	    return 1;
+	}
 
-    // 3) Changement
-    if (chdir(target) != 0)
-    {
-        if (errno == ENOENT)
-            fprintf(stderr, "cd: no such file or directory: %s\n", target);
-        else if (errno == EACCES)
-            fprintf(stderr, "cd: permission denied: %s\n", target);
-        else
-            perror("cd");
-        shell->exit_status = 1;
-        return 1;
-    }
+	// 3) Changement
+	if (chdir(target) != 0)
+	{
+	    if (errno == ENOENT)
+	        fprintf(stderr, "cd: no such file or directory: %s\n", target);
+	    else if (errno == EACCES)
+	        fprintf(stderr, "cd: permission denied: %s\n", target);
+	    else
+	        perror("cd");
+	    shell->exit_status = 1;
+	    return 1;
+	}
 
-    // 4) Nouveau PWD
-    if (getcwd(new_pwd, sizeof(new_pwd)) == NULL)
-    {
-        perror("getcwd");
-        shell->exit_status = 1;
-        return 1;
-    }
+	// 4) Nouveau PWD
+	if (getcwd(new_pwd, sizeof(new_pwd)) == NULL)
+	{
+	    perror("getcwd");
+	    shell->exit_status = 1;
+	    return 1;
+	}
 
-    // 5) Mettre à jour OLDPWD puis PWD dans l’env de minishell
-    update_env_var(&shell->env, "OLDPWD", old_pwd);
-    update_env_var(&shell->env, "PWD",     new_pwd);
+	// 5) Mettre à jour OLDPWD puis PWD dans l’env de minishell
+	update_env_var(&shell->env, "OLDPWD", old_pwd);
+	update_env_var(&shell->env, "PWD",     new_pwd);
 
-    shell->exit_status = 0;
-    return 0;
+	shell->exit_status = 0;
+	return 0;
 }*/
