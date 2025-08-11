@@ -281,9 +281,19 @@ void launch_process(t_shell *shell)
         curr_cmd = curr_cmd->next;
     }
 
-    /* On attend tous les enfants */
+    /* On attend tous les enfants et récupère le code du dernier */
+    int status = 0;
     for (int i = 0; i < shell->n_cmd; i++)
-        waitpid(shell->pids[i], NULL, 0);
+    {
+        waitpid(shell->pids[i], &status, 0);
+        if (i == shell->n_cmd - 1)
+        {
+            if (WIFEXITED(status))
+                shell->exit_status = WEXITSTATUS(status);
+            else if (WIFSIGNALED(status))
+                shell->exit_status = 128 + WTERMSIG(status);
+        }
+    }
 
     /* On met à jour $PID avec le dernier PID */
     char pid_str[20];
