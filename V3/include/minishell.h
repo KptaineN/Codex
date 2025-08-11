@@ -158,7 +158,7 @@ int   export_no_arguments(t_shell *shell);
 int   process_export_argument(char *arg, t_shell *shell);
 /* --- Env --- */
 char    *get_env_value(t_list *env, const char *name);
-char    **env_to_envp(t_list *env);
+char    **list_to_envp(t_list *env);
 int     env_len(t_list *env);
 void    print_env(t_list *env);
 t_list  *init_env(char **envp);
@@ -192,6 +192,7 @@ char *ft_itoa_inplace(char *buf, int n);
 void child_exit(char **args, char *cmd_path, char **envp, t_list *candidates, int code);
 
 void execute(t_shell *shell, t_token *cmd);
+char    **expand_cmd(t_token *token, t_list *env);
 
 /* --- Utils --- */
 size_t  t_arrlen(void **arr);

@@ -108,29 +108,13 @@ int looping(t_shell *shell)
 		//4) Tokenisation + attribution du type 
         //attribute_token_type(shell);
  
-        //Fallback : s'il y a des tokens mais pas de commande détectée,
-         // on force n_cmd = 1 et on crée un cmd_head minimal.
-		shell->n_cmd = 0;
-        shell->cmd_head = NULL;
-        shell->cmd_tail = NULL;
-        if (shell->n_cmd == 0 && shell->n_tokens > 0)
-        {
-            shell->n_cmd = 1;
-            //On pointe vers le 1er token comme commande unique 
-            t_list *fallback = ft_lstnew(&shell->tokens[0]);
-            if (!fallback) { perror("ft_lstnew fallback"); exit(1); }
-            shell->cmd_head = fallback;
-            shell->cmd_tail = fallback;
-        }
         printf("DEBUG: AFTER n_cmd = %d\n", shell->n_cmd);
-		// print_commands(shell->parser.cmd_head);
-		if (shell->n_cmd == 1) 
-		{
+        if (shell->n_cmd == 1)
+        {
             t_token *cmd = (t_token *)shell->cmd_head->content;
-            if (cmd && cmd->value && ft_strcmp(cmd->value, "exit") == 0) 
-			{
+            if (cmd && cmd->value && ft_strcmp(cmd->value, "exit") == 0)
+            {
                 free(step2);
-                // free parser/env ici !
                 break;
             }
         }

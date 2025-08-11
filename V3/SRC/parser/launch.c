@@ -1,296 +1,109 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   launch.c                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: nkiefer <nkiefer@student.42.fr>            +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/01 13:56:01 by eganassi          #+#    #+#             */
-/*   Updated: 2025/08/07 15:06:41 by nkiefer          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../../include/minishell.h"
 
-
-void add_pid_env(t_shell *shell, int fd)
+static int  run_builtin_cmd(t_shell *sh, char **argv)
 {
-    pid_t received_pid = 0;
-    char s[20]; //PID= + sizeof(pid_t) =
-    if (read(fd, s, 20) > 0)
-        perror("add_pid_func");   
-    ft_itoa_inplace(&s[4], (int) received_pid);
-    replace_or_add(&shell->env,"PID=", (const char *)s);
+    if (ft_strcmp(argv[0], "echo") == 0)
+        return (builtin_echo(sh, argv));
+    if (ft_strcmp(argv[0], "cd") == 0)
+        return (builtin_cd(sh, argv));
+    if (ft_strcmp(argv[0], "pwd") == 0)
+        return (builtin_pwd(sh, argv));
+    if (ft_strcmp(argv[0], "export") == 0)
+        return (builtin_export(sh, argv));
+    if (ft_strcmp(argv[0], "unset") == 0)
+        return (builtin_unset(sh, argv));
+    if (ft_strcmp(argv[0], "env") == 0)
+        return (builtin_env(sh, argv));
+    if (ft_strcmp(argv[0], "exit") == 0)
+        return (builtin_exit(sh, argv));
+    return (1);
 }
 
-void send_pid(int fd, int pid)
+static void exec_child(t_shell *sh, t_list *node, int i, int n, int (*p)[2])
 {
-    write(fd, "PID=", sizeof("PID="));
-    write(fd, &pid, sizeof(pid));  // Send child's PID to child
-}
+    t_token *tok;
+    char    **argv;
+    char    *path;
+    char    **envp;
+    int     k;
 
-
-int start_cmd(t_shell *shell, int *prev_pipe, int *curr_pipe)
-{
-
-    if (shell->fd_in == -1)
-        shell->fd_in = STDIN_FILENO;
-    int fd_pid[2];
-    if (pipe(fd_pid) == -1)
-        perror("fd_pid");
-    int pid;
-    pid = fork();
-    if (pid < 0)
-        perror("Forks");
-    
-    if (pid == 0)
+    if (i > 0)
+        dup2(p[i - 1][0], STDIN_FILENO);
+    if (i < n - 1)
+        dup2(p[i][1], STDOUT_FILENO);
+    k = 0;
+    while (k < n - 1)
     {
-        add_pid_env(shell,fd_pid[0]);
-        if (shell->fd_in != STDIN_FILENO)
-        {
-            dup2(shell->fd_in, STDIN_FILENO);
-            close(shell->fd_in);
-        }
-        dup2(curr_pipe[1], STDOUT_FILENO);
-        close(curr_pipe[0]);
-        close(curr_pipe[1]);
-        close(fd_pid[0]);
-        close(fd_pid[1]);
-        execute(shell,shell->cmd_tail->content);
-        exit(1);
+        close(p[k][0]);
+        close(p[k][1]);
+        k++;
     }
-
-    if (shell->fd_in != STDIN_FILENO)
-            close(shell->fd_in);
-    send_pid(fd_pid[1],pid);
-    close(curr_pipe[1]);
-    close(fd_pid[0]);
-    close(fd_pid[1]);
-    prev_pipe[0] = curr_pipe[0];
-    prev_pipe[1] = curr_pipe[1];
-    shell->cmd_tail = shell->cmd_tail->next;
-    return pid;
+    tok = (t_token *)node->content;
+    argv = expand_cmd(tok, sh->env);
+    if (!argv || !argv[0])
+        _exit(1);
+    if (is_builtin(argv[0]))
+    {
+        k = run_builtin_cmd(sh, argv);
+        free_tab(argv);
+        _exit(k);
+    }
+    path = find_command_path(argv[0], sh->env);
+    envp = list_to_envp(sh->env);
+    execve(path, argv, envp);
+    perror("execve");
+    free(path);
+    free_tab(envp);
+    free_tab(argv);
+    _exit(127);
 }
 
-int end_cmd(t_shell *shell,int *prev_pipe)
+void    launch_process(t_shell *sh)
 {
-    if (shell->fd_out == -1)
-        shell->fd_out = STDOUT_FILENO;
-    int fd_pid[2];
-    if (pipe(fd_pid) == -1)
-        perror("fd_pid");
+    int     (*p)[2];
+    pid_t   *pids;
+    t_list  *node;
+    int     i;
+    int     status;
 
-    int pid;
-    pid = fork();
-    if (pid < 0)
-        perror("Forks");
-    if (pid == 0)
-    {
-        add_pid_env(shell,fd_pid[0]);
-        close(fd_pid[0]);
-        close(fd_pid[1]);
-        dup2(prev_pipe[0], STDIN_FILENO);
-        close(prev_pipe[0]);
-        close(prev_pipe[1]);
-        if (shell->fd_out != STDOUT_FILENO)
-        {
-            dup2(shell->fd_out, STDOUT_FILENO);
-            close(shell->fd_out);
-        }
-        execute(shell,shell->cmd_tail->content);
-    }
-    send_pid(fd_pid[1],pid);
-    close(fd_pid[0]);
-    close(fd_pid[1]);
-    close(prev_pipe[0]);
-    close(prev_pipe[1]);
-    if (shell->fd_out != STDOUT_FILENO)
-        close(shell->fd_out);
-
-    return pid;
-}
-
-
-void one_command(t_shell *shell)
-{ 
-    if (shell->fd_in == -1)
-        shell->fd_in = STDIN_FILENO;
-    if (shell->fd_out == -1)
-        shell->fd_out = STDOUT_FILENO;
-    int fd[2];
-    int fd_pid[2];
-
-    if (pipe(fd) == -1 || pipe(fd_pid) == -1) {
-        perror("pipe failed");
-    }
-    
-
-    int pid = fork();    
-    if (pid < 0)
-    {
-        perror("fork");
-        return;
-    }
-    
-    if (pid == 0)
-    {
-        int d; //debug
-        scanf("%d", &d); // debug
-        
-        close(fd[1]);
-        close(fd_pid[0]);  
-        add_pid_env(shell,fd_pid[0]);
-        close(fd[0]);
-        close(fd_pid[0]);
-
-        if (shell->fd_in != STDIN_FILENO)
-        {
-            dup2(shell->fd_in, STDIN_FILENO);
-            close(shell->fd_in);
-        }
-        if (shell->fd_out != STDOUT_FILENO)
-        {
-            dup2(shell->fd_out, STDOUT_FILENO);
-            close(shell->fd_out);
-        }
-        execute(shell, shell->cmd_head->content);
-        exit(1);
-    }
-    else
-    close(fd[0]);  // Close read end
-    close(fd_pid[0]);
-    send_pid(fd_pid[1], pid);
-    close(fd[1]);  // Close write end
-    close(fd_pid[1]);
-
-    waitpid(pid,NULL,0);
-}
-
-void launch_process(t_shell *shell)
-{
-    int *t_pid;
-    int i;
-    int *pid;
-    int prev_pipe[2] = {-1,-1};
-    int curr_pipe[2];
-    int fd_pid[2];
-
-    if (shell->n_cmd == 1)
-    {    
-        one_command(shell);
+    if (sh->n_cmd <= 0)
         return ;
-    }
-
-    pid = malloc(sizeof(int)*shell->n_cmd);    
-    if (!pid)
-        return;
-    i = 0;
-    if(pipe(curr_pipe) < 0)
-        perror("pipe");
-    pid[i++] = start_cmd(shell, prev_pipe,curr_pipe);
-    while(shell->cmd_tail->next != NULL)
+    p = NULL;
+    if (sh->n_cmd > 1)
     {
-        if (pipe(fd_pid) == -1)
-            perror("fd_pid");
-        t_pid = &pid[i];
-        (void) t_pid;
-        pid[i] = fork();
-        if (pid[i] < 0)
-            perror("Forks");
-        if (pid[i] == 0)
-        {
-            add_pid_env(shell,fd_pid[0]);
-            dup2(prev_pipe[0], STDIN_FILENO);
-            close(prev_pipe[0]);
-            close(prev_pipe[1]);
-            close(fd_pid[0]);
-            close(fd_pid[1]);
-            dup2(curr_pipe[1], STDOUT_FILENO);
-            close(curr_pipe[0]);
-            close(curr_pipe[1]);
-            execute(shell,shell->cmd_tail->content);
-        }
-        else
-        {
-            send_pid(fd_pid[1], (int) pid[i]);
-            close(fd_pid[0]);
-            close(fd_pid[1]);
-            close(prev_pipe[0]);
-            close(prev_pipe[1]);
-            prev_pipe[0] = curr_pipe[0];
-            prev_pipe[1] = curr_pipe[1];
-            if(pipe(curr_pipe) == -1)
-                perror("pipe"); //ERROR
-        }
-        shell->cmd_tail = shell->cmd_tail->next;
+        p = malloc(sizeof(int [2]) * (sh->n_cmd - 1));
+        if (!p)
+            return ;
+    }
+    pids = malloc(sizeof(pid_t) * sh->n_cmd);
+    if (!pids)
+        return ;
+    node = sh->cmd_head;
+    i = -1;
+    while (++i < sh->n_cmd)
+    {
+        if (i < sh->n_cmd - 1 && pipe(p[i]) < 0)
+            return (perror("pipe"));
+        pids[i] = fork();
+        if (pids[i] < 0)
+            return (perror("fork"));
+        if (pids[i] == 0)
+            exec_child(sh, node, i, sh->n_cmd, p);
+        if (i > 0)
+            close(p[i - 1][0]);
+        if (i < sh->n_cmd - 1)
+            close(p[i][1]);
+        node = node->next;
+    }
+    i = 0;
+    while (i < sh->n_cmd)
+    {
+        waitpid(pids[i], &status, 0);
         i++;
     }
-    pid[i++] = end_cmd(shell, prev_pipe);
-    while(i--)
-        waitpid(pid[i], NULL, 0);
-    free(pid);
+    sh->exit_status = WIFEXITED(status) ? WEXITSTATUS(status) : 1;
+    free(pids);
+    if (p)
+        free(p);
 }
 
-
-/*
-✔️ 1. Tu respectes l’interface et les attentes du reste de ton shell :
-
-    launch_process(t_shell *shell) doit toujours :
-
-        forker chaque commande de shell->cmd_head
-
-        exécuter chaque cmd avec execute_cmd(shell, ...)
-
-        stocker les pids si tu attends avec waitpid
-
-        gérer les fd_in et fd_out redirigés
-
-✔️ 2. Tu mets bien à jour :
-
-    shell->cmd_tail dans la boucle (au lieu de cmd_head)
-
-    les fichiers à fermer (attention aux fd doublés)
-
-    l’environnement (shell->env) avec replace_or_add
-
-⚠️ Mais voici ce que tu dois vérifier avant de switcher
-❗ 1. Tu dois comprendre chaque pipe(fd_pid)
-
-Dans la version avancée, chaque enfant lit sur un fd_pid[0] un PID qu'on lui envoie pour l'injecter dans l’environnement.
-
-Donc :
-
-    Ce fd_pid doit être correctement ouvert/fermé,
-
-    Si tu oublies une fermeture ➜ 🔥 deadlock,
-
-    Si tu fermes trop tôt ➜ 🔥 read() lit rien.
-
-❗ 2. Tu ajoutes de la complexité technique
-
-Ta version simple a :
-
-    Une seule structure de boucle
-
-    Des dup2 logiques, sans échange de données
-
-La version avancée a :
-
-    Des échanges read / write
-
-    Des blocs conditionnels (start, middle, end, one_command)
-
-    Beaucoup plus de close() à bien placer
-
-❗ 3. Tu ne peux pas revenir en arrière facilement
-
-Une fois que tu passes sur la version avancée, tu auras :
-
-    du code splitté (start_cmd, end_cmd, one_command)
-
-    des dépendances internes (add_pid_env, send_pid)
-
-    une logique de boucle répartie → moins modulaire
-
-Donc si tu remplaces, il vaut mieux être sûr de vouloir rester avec ce système.
-*/
