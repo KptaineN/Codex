@@ -88,17 +88,6 @@ int export_no_arguments(t_shell *shell)
     char **arr = env_to_array(shell);
     if (!arr)
     {
-        printf("env_to_array → NULL\n"); // DEBUG
-        shell->exit_status = 1;
-        return 1;
-    }   
-    else
-    {
-        printf("env_to_array → OK\n");   // DEBUG
-    }
-
-    if (!arr)
-    {
         shell->exit_status = 1;
         return 1;
     }

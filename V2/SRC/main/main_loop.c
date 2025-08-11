@@ -103,9 +103,8 @@ int looping(t_shell *shell)
       
  
         // Attribution des types de tokens /
-		attribute_token_type(shell);
-		printf("DEBUG: BEFORE REINIT n_cmd = %d\n", shell->n_cmd);
-		//4) Tokenisation + attribution du type 
+                attribute_token_type(shell);
+                //4) Tokenisation + attribution du type
         //attribute_token_type(shell);
  
         //Fallback : s'il y a des tokens mais pas de commande détectée,
@@ -122,8 +121,7 @@ int looping(t_shell *shell)
             shell->cmd_head = fallback;
             shell->cmd_tail = fallback;
         }
-        printf("DEBUG: AFTER n_cmd = %d\n", shell->n_cmd);
-		// print_commands(shell->parser.cmd_head);
+        // print_commands(shell->parser.cmd_head);
 		if (shell->n_cmd == 1) 
 		{
             t_token *cmd = (t_token *)shell->cmd_head->content;
@@ -137,9 +135,8 @@ int looping(t_shell *shell)
 		shell->pids = malloc(sizeof(pid_t) * shell->n_cmd);
 		if (!shell->pids)
 			perror("MALLOC pids");
-		// 5) Exécution
-		launch_process(shell);
-		printf("\nlast line\n");
+                // 5) Exécution
+                launch_process(shell);
 		// 6) Cleanup (ajuster selon ce qui est alloué)
 		free_tab((char **)shell->parsed_args->arr);
 		free(shell->parsed_args);

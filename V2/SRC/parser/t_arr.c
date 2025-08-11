@@ -99,7 +99,6 @@ int is_in_t_arr_dic_str(t_arr *arr, const char *arg)
     {
         if (!arr->arr[i]) 
         {
-             printf("ERREUR: arr->arr[%d] == NULL\n", i);
             continue; // ou break;
         }
         dic = (t_dic *)arr->arr[i];
@@ -174,7 +173,6 @@ void build_t_arr_dic_str(t_arr **dst, char **keys, void **values, int len)
         (*dst)->arr[i] = &temp[i];                  // point into temp[]
         if (!temp[i].key)
             return;
-        printf("%s\t%p\n", (char *)temp[i].key, (int*)temp[i].value);
         i++;
     }
 }
@@ -353,7 +351,6 @@ void build_t_arr_dic_str(t_arr **dst, char **keys,  int (**values)(t_shell *, ch
         }
         dic->key = ft_strdup(keys[i]);
         dic->value = values[i];
-        //printf("[BUILD] key=%s, handler=%p\n",  (char *)dic->key, (void *)dic->value); // wildjump
         if (!dic->key)
         {
             free(dic);
@@ -368,8 +365,6 @@ void build_t_arr_dic_str(t_arr **dst, char **keys,  int (**values)(t_shell *, ch
             return;
         }
         (*dst)->arr[i] = dic;
-        // Debug print:
-        // printf("build_t_arr_dic_str: [%d] key='%s', value=%p\n", i, (char *)dic->key, (void *)dic->value);
         i++;
     }
 }
@@ -412,8 +407,6 @@ void build_t_arr_dic_str(t_arr **dst, char **keys, void **values, int len)
             *dst = NULL;
             return;
         }
-        // Debug print:
-        // printf("build_t_arr_dic_str: [%d] key='%s', value=%p\n", i, temp[i].key, temp[i].value);
     }
 }*/
 

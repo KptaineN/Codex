@@ -65,7 +65,6 @@ int start_shell(t_shell *shell, char **envp)
     init_signals();
      //shell->env = init_env(envp);
     shell->env = set_linked_path(envp); // Initialisation de l'environnement
-    //printf("first env:\t%s\n", (char *)shell->env->content);
     init_shell(shell, envp);
     if (!shell->env)
     {

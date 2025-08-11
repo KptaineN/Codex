@@ -18,22 +18,20 @@ static int count_args_cmd(t_shell *shell, int i)
 	char **arr = (char **)shell->parsed_args->arr;
 	int len = shell->parsed_args->len;
 	
-	int idx_oper;
-	//print_dic(shell->oper);
-	while (1)
-	{
-		if (i==len)
-			break;
-		if (arr[i] != NULL)
-		{
-			printf("arg%d %s\n", i, arr[i]);
-			idx_oper = is_in_t_arr_dic_str(shell->oper, arr[i]);
-			if (idx_oper != -1)
-				return n_args;
-			n_args++;
-		}
-		i++;
-	}
+        int idx_oper;
+        while (1)
+        {
+                if (i==len)
+                        break;
+                if (arr[i] != NULL)
+                {
+                        idx_oper = is_in_t_arr_dic_str(shell->oper, arr[i]);
+                        if (idx_oper != -1)
+                                return n_args;
+                        n_args++;
+                }
+                i++;
+        }
 	return n_args;
 }
 
@@ -69,10 +67,9 @@ void subtoken_of_cmd(t_subtoken_container *container, char *arg)
 			parts[i].type = QUOTE_NONE;
 			idx_tail = find_c_nonescaped(&head[idx],"\"\'",2);
 		}
-		parts[i].len = idx_tail;
-		parts[i].p = (char *)&head[idx];
-		//printf("%.*s\n", idx_tail, &head[idx]);
-		idx+= idx_tail+(parts[i].type != QUOTE_NONE);
+                parts[i].len = idx_tail;
+                parts[i].p = (char *)&head[idx];
+                idx+= idx_tail+(parts[i].type != QUOTE_NONE);
 		//if (parts[i].type != QUOTE_NONE)
 		//	head+=2;
 		i++;
@@ -153,7 +150,7 @@ void attribute_token_type(t_shell *shell)
 			token->type = TOKEN_WORD;
 			token->value = arr[i];
 			
-			//OPERATOR //les <> << >> sont deja gere par count_tokens, faudrait subdiviser (pour le bonus) les le parse pour subdiviser les tokens
+                        // OPERATOR: les <> << >> sont deja geres par count_tokens; pour le bonus, il faudrait subdiviser le parse pour decouper les tokens
 			t_arr_index = is_in_t_arr_dic_str(shell->oper, arr[i]);
 			if (t_arr_index != -1)
 				token->type = TOKEN_OPER;
