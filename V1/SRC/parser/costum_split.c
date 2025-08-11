@@ -60,15 +60,27 @@ static char *extract_arg(const char *str, int *start, t_shell *shell)
     bool  in_double_quote = false;
     int   token_start = *start;
     int   token_end;
-    int   idx_oper_one;
-    int   oper_ad = 0;
+    int   idx_oper;
+    int   oper_len;
     char  *token;
 
-    // Skip espaces
     while (str[token_start] && str[token_start] == ' ')
         token_start++;
     if (!str[token_start])
         return NULL;
+
+    idx_oper = is_in_t_arr_dic_str(shell->oper, &str[token_start]);
+    if (idx_oper != -1)
+    {
+        oper_len = ft_strlen((const char *)((t_dic *)shell->oper->arr[idx_oper])->key);
+        token = malloc(oper_len + 1);
+        if (!token)
+            return NULL;
+        strncpy(token, str + token_start, oper_len);
+        token[oper_len] = '\0';
+        *start = token_start + oper_len;
+        return token;
+    }
 
     token_end = token_start;
     while (str[token_end])
@@ -79,23 +91,12 @@ static char *extract_arg(const char *str, int *start, t_shell *shell)
             in_double_quote = !in_double_quote;
         else if (!in_single_quote && !in_double_quote)
         {
-            if (str[token_end] == ' ')
+            if (str[token_end] == ' ' ||
+                is_in_t_arr_dic_str(shell->oper, &str[token_end]) != -1)
                 break;
-            idx_oper_one = is_in_t_arr_dic_str(shell->oper, &str[token_end]);
-            if (idx_oper_one != -1)
-            {
-                oper_ad = ft_strlen((const char *)((t_dic *)shell->oper->arr[idx_oper_one])->key);
-                break;
-            }
-            if (str[token_end + 1] && is_in_t_arr_dic_str(shell->oper, &str[token_end + 1]) != -1)
-            {
-                oper_ad = 1;
-                break;
-            }
         }
         token_end++;
     }
-    token_end += oper_ad;
     *start = token_end;
 
     token = malloc((token_end - token_start) + 1);
