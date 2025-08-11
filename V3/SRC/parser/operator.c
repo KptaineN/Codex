@@ -1,12 +1,5 @@
 #include "../../include/minishell.h"
 
-int handle_heredoc(t_shell *shell, char **argv)
-{
-    (void)shell;
-    (void)argv;
-    return 0;
-}
-
 // "<<",">>","&&","||","|","<",">"
 //   0    1   2     3   4   5   6
 void file_access_redirection(t_shell *shell, int t_arr_index, int i)
