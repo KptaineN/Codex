@@ -269,7 +269,7 @@ int is_in_t_arr_dic_str(t_arr *arr, const char *arg)
         }
 
         int len_key = ft_strlen(dic->key);
-        if (len_key >= len_arg && ft_strncmp(dic->key, arg, len_arg) == 0)
+        if (len_arg >= len_key && ft_strncmp(arg, dic->key, len_key) == 0)
             return i;
         i++;
     }
