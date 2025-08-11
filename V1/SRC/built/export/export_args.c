@@ -1,6 +1,6 @@
 #include "export.h"
 
-int is_valid_identifier(const char *name)
+static int is_valid_identifier(const char *name)
 {
     if (!name || !*name)
         return 0;
@@ -14,7 +14,7 @@ int is_valid_identifier(const char *name)
     return 1;
 }
 
-int handle_arg_with_assignment(char *arg, t_shell *shell)
+static int handle_arg_with_assignment(char *arg, t_shell *shell)
 {
     char *eq = ft_strchr(arg, '=');
     int ret = 0;
@@ -33,7 +33,7 @@ int handle_arg_with_assignment(char *arg, t_shell *shell)
     return ret;
 }
 
-int handle_arg_without_assignment(char *arg, t_shell *shell)
+static int handle_arg_without_assignment(char *arg, t_shell *shell)
 {
     if (!is_valid_identifier(arg))
     {

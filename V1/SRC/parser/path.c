@@ -1,275 +1,242 @@
-
 #include "../../include/minishell.h"
 
-
-// Remplace ou ajoute une variable
 int set_env_value(t_list **env, const char *key, const char *value)
 {
-	t_list *tmp = *env;
-	size_t key_len = ft_strlen(key);
-	char *new_str;
-
-	// Cherche si la clé existe déjà
-	while (tmp)
-	{
-		char *content = (char *)tmp->content;
-		char *equal = ft_strchr(content, '=');
-		if (equal && (size_t)(equal - content) == key_len && !strncmp(content, key, key_len))
-		{
-			free(tmp->content);
-			new_str = malloc(key_len + 1 + ft_strlen(value) + 1);
-			if (!new_str) exit(1);
-			sprintf(new_str, "%s=%s", key, value);
-			tmp->content = new_str;
-			return 0;
-		}
-		tmp = tmp->next;
-	}
-	// Sinon ajoute un noeud
-	new_str = malloc(key_len + 1 + ft_strlen(value) + 1);
-	if (!new_str) exit(1);
-	sprintf(new_str, "%s=%s", key, value);
-	t_list *node = malloc(sizeof(t_list));
-	if (!node) exit(1);
-	node->content = new_str;
-	node->next = *env;
-	*env = node;
-	return 0;
+    t_list *tmp = *env;
+    while (tmp)
+    {
+        t_env *cur = tmp->content;
+        if (ft_strcmp(cur->key, key) == 0)
+        {
+            free(cur->value);
+            cur->value = ft_strdup(value);
+            return 0;
+        }
+        tmp = tmp->next;
+    }
+    t_env *new_env = malloc(sizeof(t_env));
+    t_list *node = malloc(sizeof(t_list));
+    if (!new_env || !node)
+        exit(1);
+    new_env->key = ft_strdup(key);
+    new_env->value = ft_strdup(value);
+    node->content = new_env;
+    node->next = *env;
+    *env = node;
+    return 0;
 }
 
 char *get_env_value(t_list *env, const char *key)
 {
-    size_t key_len = ft_strlen(key);
     while (env)
     {
-        char *content = env->content;
-        char *equal = ft_strchr(content, '=');
-        if (equal && (size_t)(equal - content) == key_len && !ft_strncmp(content, key, key_len))
-            return equal + 1;
+        t_env *cur = env->content;
+        if (ft_strcmp(cur->key, key) == 0)
+            return cur->value;
         env = env->next;
     }
     return NULL;
 }
 
-
-
-char	*get_value_env(t_list *env, char *value, int len)
+char *get_value_env(t_list *env, char *value, int len)
 {
-	t_list	*temp;
-	temp = env;
-	while (1)
-	{
-		if (ft_strncmp(temp->content, value, len) == 0 && *(char* )(temp->content+len) == '=')
-			return (temp->content + len +1); // Skip "value="
-		temp = temp->next;
-		if (temp == env)
-			return (NULL);
-	}
-	return (NULL);
+    while (env)
+    {
+        t_env *cur = env->content;
+        if ((int)ft_strlen(cur->key) == len && ft_strncmp(cur->key, value, len) == 0)
+            return cur->value;
+        env = env->next;
+    }
+    return NULL;
 }
 
-// Helper function to get PATH from environment
-static char	*get_path_env(t_list *env)
+static char *get_path_env(t_list *env)
 {
-	t_list	*temp;
-
-	temp = env;
-	while (1)
-	{
-		if (ft_strncmp(temp->content, "PATH=", 5) == 0)
-			return (temp->content + 5); // Skip "PATH="
-		temp = temp->next;
-		if (temp == env)
-			return (NULL);
-	}
-	return (NULL);
+    while (env)
+    {
+        t_env *cur = env->content;
+        if (ft_strcmp(cur->key, "PATH") == 0)
+            return cur->value;
+        env = env->next;
+    }
+    return NULL;
 }
 
-// Helper function to join path and command
-static char	*join_path(char *dir, char *cmd)
+static char *join_path(char *dir, char *cmd)
 {
-	char	*full_path;
-	int		dir_len;
-	int		cmd_len;
+    char *full_path;
+    int dir_len;
+    int cmd_len;
 
-	dir_len = ft_strlen(dir);
-	cmd_len = ft_strlen(cmd);
-	int i, j;
-	full_path = malloc(dir_len + cmd_len + 2); // +2 for '/' and '\0'
-	if (!full_path)
-		return (NULL);
-	// Copy directory
-	i = 0;
-	while (i < dir_len)
-	{
-		full_path[i] = dir[i];
-		i++;
-	}
-	// Add separator
-	full_path[i++] = '/';
-	// Copy command
-	j = 0;
-	while (j < cmd_len)
-	{
-		full_path[i + j] = cmd[j];
-		j++;
-	}
-	full_path[i + j] = '\0';
-	return (full_path);
+    dir_len = ft_strlen(dir);
+    cmd_len = ft_strlen(cmd);
+    int i, j;
+    full_path = malloc(dir_len + cmd_len + 2);
+    if (!full_path)
+        return NULL;
+    i = 0;
+    while (i < dir_len)
+    {
+        full_path[i] = dir[i];
+        i++;
+    }
+    full_path[i++] = '/';
+    j = 0;
+    while (j < cmd_len)
+    {
+        full_path[i + j] = cmd[j];
+        j++;
+    }
+    full_path[i + j] = '\0';
+    return full_path;
 }
 
-// Main function to find command path
-char	*find_command_path(char *cmd, t_list *env)
+char *find_command_path(char *cmd, t_list *env)
 {
-	char	*path_env;
-	char	*path_copy;
-	char	*dir;
-	char	*full_path;
+    char *path_env;
+    char *path_copy;
+    char *dir;
+    char *full_path;
+    int i, start, len;
 
-	int i, start, len;
-	// If command contains '/', it's already a path
-	if (ft_strchr(cmd, '/'))
-	{
-		if (access(cmd, F_OK | X_OK) == 0)
-			return (ft_strdup(cmd));
-		return (NULL);
-	}
-	// Get PATH envirnment variable
-	path_env = get_path_env(env);
-	if (!path_env)
-		return (NULL);
-	// Make a copy of PATH to work with
-	len = ft_strlen(path_env);
-	path_copy = malloc(len + 1);
-	if (!path_copy)
-		return (NULL);
-	ft_strcpy(path_copy, path_env);
-	// Search through each directory in PATH
-	start = 0;
-	i = 0;
-	while (i <= len)
-	{
-		if (path_copy[i] == ':' || path_copy[i] == '\0')
-		{
-			path_copy[i] = '\0'; // Null-terminate current directory
-			dir = path_copy + start;
-			// Skip empty directories
-			if (*dir != '\0')
-			{
-				full_path = join_path(dir, cmd);
-				if (full_path && access(full_path, F_OK | X_OK) == 0)
-				{
-					free(path_copy);
-					return (full_path);
-				}
-				if (full_path)
-					free(full_path);
-			}
-			start = i + 1;
-		}
-		i++;
-	}
-	free(path_copy);
-	return (NULL);
+    if (ft_strchr(cmd, '/'))
+    {
+        if (access(cmd, F_OK | X_OK) == 0)
+            return ft_strdup(cmd);
+        return NULL;
+    }
+    path_env = get_path_env(env);
+    if (!path_env)
+        return NULL;
+    len = ft_strlen(path_env);
+    path_copy = malloc(len + 1);
+    if (!path_copy)
+        return NULL;
+    ft_strcpy(path_copy, path_env);
+    start = 0;
+    i = 0;
+    while (i <= len)
+    {
+        if (path_copy[i] == ':' || path_copy[i] == '\0')
+        {
+            path_copy[i] = '\0';
+            dir = path_copy + start;
+            if (*dir != '\0')
+            {
+                full_path = join_path(dir, cmd);
+                if (full_path && access(full_path, F_OK | X_OK) == 0)
+                {
+                    free(path_copy);
+                    return full_path;
+                }
+                if (full_path)
+                    free(full_path);
+            }
+            start = i + 1;
+        }
+        i++;
+    }
+    free(path_copy);
+    return NULL;
 }
 
-
-int count_exp_len(t_subtoken *b,int *k)
+int count_exp_len(t_subtoken *b, int *k)
 {
-	int var_len = 0;
-	if (ft_isalpha(b->p[*k + 1]) || b->p[*k + 1] == '_') {
+    int var_len = 0;
+    if (ft_isalpha(b->p[*k + 1]) || b->p[*k + 1] == '_')
+    {
         var_len = 1;
         while (*k + 1 + var_len < b->len &&
-               (ft_isalnum(b->p[*k + 1 + var_len]) || b->p[*k + 1 + var_len] == '_')) {
+               (ft_isalnum(b->p[*k + 1 + var_len]) || b->p[*k + 1 + var_len] == '_'))
             var_len++;
-        }
-	}
-	return var_len;
+    }
+    return var_len;
 }
 
 void expand_variable(t_subtoken *b, int *k, t_list **curr, int *count, t_list *env)
 {
     int var_len;
-	var_len=count_exp_len(b,k);
-	if (var_len>0)
-	{
-		char *value = get_value_env(env , (char *)&b->p[(*k)+1], var_len);
-        push_lst(curr,ft_strdup_count (value,count));
-		*k += var_len;
-	}
+
+    var_len = count_exp_len(b, k);
+    if (var_len > 0)
+    {
+        char *value = get_value_env(env, (char *)&b->p[(*k) + 1], var_len);
+        push_lst(curr, ft_strdup_count(value, count));
+        *k += var_len;
+    }
 }
 
 void expand_str(t_subtoken *b, t_list *env, int *count, t_list **curr)
 {
-	int k = 0;
-	while(k<b->len)
-	{
-		if (k < b->len && b->p[k] == '$') 
-		{
-			if (k + 1 == b->len || b->p[k + 1] == ' ') 
-				push_lst(curr, ft_strdup_count("$", count));
-			else if (b->p[k + 1] == '$')
-			{
-				push_lst(curr, ft_strdup(get_value_env(env,"PID",3)));
-				k++;
-			}
-			else
-				expand_variable(b, &k, curr, count,env); // Handles variable case	
-		}
-		else
-			(*count)++;
-		k++;
-	}
+    int k = 0;
+    while (k < b->len)
+    {
+        if (k < b->len && b->p[k] == '$')
+        {
+            if (k + 1 == b->len || b->p[k + 1] == ' ')
+                push_lst(curr, ft_strdup_count("$", count));
+            else if (b->p[k + 1] == '$')
+            {
+                push_lst(curr, ft_strdup(get_value_env(env, "PID", 3)));
+                k++;
+            }
+            else
+                expand_variable(b, &k, curr, count, env);
+        }
+        else
+            (*count)++;
+        k++;
+    }
 }
 
-char *build_expansion(t_subtoken_container *a,int count, t_list **add_head)
+char *build_expansion(t_subtoken_container *a, int count, t_list **add_head)
 {
-	t_list *head = *add_head;
-	char *new = malloc(count+1);
-	if (!new)
-		perror("MALLOC build_expansion");
-	int i = 0;	
-	int j = 0;
-	int k;
-	t_subtoken *b;
-	t_list *tmp;
+    t_list *head = *add_head;
+    char *new = malloc(count + 1);
+    if (!new)
+        perror("MALLOC build_expansion");
+    int i = 0;
+    int j = 0;
+    int k;
+    t_subtoken *b;
+    t_list *tmp;
 
-	while(j<a->n_parts) // 
-	{
-		b = &a->parts[j];
-		if (b->type == QUOTE_SINGLE) 	//no expansion
-		{
-			ft_strncpy(&new[i],b->p,b->len);
-			i+=b->len;
-		}
-		else							//expansion
-		{
-			k = 0;
-			while(k<b->len)
-			{
-				if (b->p[k] == '$')
-				{
-					ft_strcpy(&new[i],head->content);
-					i+= ft_strlen(head->content);
-					tmp = head;
-					head = head->next;
-					free(tmp->content);
-					free(tmp);
-					if (k+1<b->len && b->p[k+1] == '$')
-						k++;
-					else
-						k+=count_exp_len(b,&k);
-				}
-				else
-					new[i++] = b->p[k];
-				k++;
-			}
-		}	
-		j++;
-	}
-	new[i] = 0;
-	return new;
+    while (j < a->n_parts)
+    {
+        b = &a->parts[j];
+        if (b->type == QUOTE_SINGLE)
+        {
+            ft_strncpy(&new[i], b->p, b->len);
+            i += b->len;
+        }
+        else
+        {
+            k = 0;
+            while (k < b->len)
+            {
+                if (b->p[k] == '$')
+                {
+                    ft_strcpy(&new[i], head->content);
+                    i += ft_strlen(head->content);
+                    tmp = head;
+                    head = head->next;
+                    free(tmp->content);
+                    free(tmp);
+                    if (k + 1 < b->len && b->p[k + 1] == '$')
+                        k++;
+                    else
+                        k += count_exp_len(b, &k);
+                }
+                else
+                    new[i++] = b->p[k];
+                k++;
+            }
+        }
+        j++;
+    }
+        return new;
 }
+
 char *expand_container(t_subtoken_container *a, t_list **head, t_list *env)
 {
 	(void)head;

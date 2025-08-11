@@ -1,9 +1,4 @@
 #include "export.h"
-typedef struct s_env
-{
-    char *key;
-    char *value;
-} t_env;
 
 t_list *find_env_var(t_shell *shell, const char *key)
 {
