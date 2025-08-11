@@ -290,13 +290,15 @@ void launch_process(t_shell *shell)
 
         /* ——— Le PARENT ——— */
         shell->pids[i] = pid;
+        if (prev_fd != -1)
+            close(prev_fd);
         if (i < shell->n_cmd - 1)
         {
             close(pipe_fd[1]);
-            if (prev_fd != -1)
-                close(prev_fd);
             prev_fd = pipe_fd[0];
         }
+        else
+            prev_fd = -1;
         curr_cmd = curr_cmd->next;
     }
 
