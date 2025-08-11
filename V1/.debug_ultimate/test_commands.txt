@@ -1,0 +1,7 @@
+pwd
+echo "Test automatique minishell"
+ls -la
+echo $USER
+echo $HOME
+env | head -5
+exit

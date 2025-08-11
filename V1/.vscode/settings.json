@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "parsking.h": "c",
+        "signal.h": "c"
+    }
+}

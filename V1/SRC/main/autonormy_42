@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Function to format a single file
+format_file() {
+    local file="$1"
+    echo "Formatting $file..."  # Debugging line
+    python3 -m c_formatter_42 < "$file" > temp_file && mv temp_file "$file"
+    if [[ $? -ne 0 ]]; then
+        echo "Error formatting $file"
+    else
+        echo "Formatted $file"
+    fi
+}
+
+# Check if an argument was provided
+if [[ -z "$1" ]]; then
+    echo "Usage: autonormy <filename.c> or autonormy <directory>"
+    exit 1
+fi
+
+# If the argument is a directory, format all .c files in it
+if [[ -d "$1" ]]; then
+    for file in "$1"/*.c; do
+        if [[ -f "$file" ]]; then
+            format_file "$file"
+        fi
+    done
+else
+    # Otherwise, assume it's a single file
+    format_file "$1"
+fi
