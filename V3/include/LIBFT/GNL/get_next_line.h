@@ -1,26 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   cmd.c                                              :+:      :+:    :+:   */
+/*   get_next_line.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nkiefer <nkiefer@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/25 22:41:19 by eganassi          #+#    #+#             */
-/*   Updated: 2025/08/07 15:27:58 by nkiefer          ###   ########.fr       */
+/*   Created: 2024/11/16 13:19:35 by nkiefer           #+#    #+#             */
+/*   Updated: 2024/12/01 07:48:37 by nkiefer          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/minishell.h"
+#ifndef GET_NEXT_LINE_H
+# define GET_NEXT_LINE_H
+# include <stdlib.h>
+# include <unistd.h>
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 5
+# endif
 
-bool is_command(char *str, t_list *env)
-{
-    char *cmd_path;
 
-    cmd_path = find_command_path(str, env);
-    if (cmd_path)
-    {
-        free(cmd_path);
-        return (1);
-    }
-    return (0);
-}
+char	*get_next_line(int fd);
+char	*get_strchr(const char *str, int c);
+char	*get_strdup(const char *s);
+char	*get_strjoin(char *s1, char *s2);
+char	*get_substr(char const *s, unsigned int start, size_t len);
+int		get_strlen(const char *str);
+
+#endif

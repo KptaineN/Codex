@@ -1,26 +1,42 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   cmd.c                                              :+:      :+:    :+:   */
+/*   ft_atol.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nkiefer <nkiefer@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/25 22:41:19 by eganassi          #+#    #+#             */
-/*   Updated: 2025/08/07 15:27:58 by nkiefer          ###   ########.fr       */
+/*   Created: 2025/02/05 16:48:34 by nkiefer           #+#    #+#             */
+/*   Updated: 2025/02/05 17:16:45 by nkiefer          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/minishell.h"
+#include "libft.h"
 
-bool is_command(char *str, t_list *env)
+long	ft_atol(const char *nptr)
 {
-    char *cmd_path;
+	long	rslt;
+	long	i;
+	long	sign;
 
-    cmd_path = find_command_path(str, env);
-    if (cmd_path)
-    {
-        free(cmd_path);
-        return (1);
-    }
-    return (0);
+	rslt = 0;
+	i = 0;
+	sign = 1;
+	while (ft_isspace(nptr[i]))
+	{
+		i++;
+	}
+	if (nptr[i] == '-' || nptr[i] == '+')
+	{
+		if (nptr[i] == '-')
+		{
+			sign = -1;
+		}
+		i++;
+	}
+	while (nptr[i] && ft_isdigit(nptr[i]))
+	{
+		rslt = rslt * 10 + (nptr[i] - '0');
+		i++;
+	}
+	return (rslt * sign);
 }
