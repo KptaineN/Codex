@@ -210,27 +210,28 @@ t_arr 	*custom_split(const char *str, t_shell * shell)
 	if (!result)
 		perror("Malloc");
 	result->len = count_arg(str, shell); //have to implemente the <quote> if " or ' not closed
-	result->arr = malloc(sizeof(char *) * (result->len));
-	if (!result->arr)
-	{
-		free(result);
-		perror("Malloc");
-	}
-	pos = 0;
-	token_index = 0;
-	while (token_index < result->len)
-	{
-		result->arr[token_index] = extract_arg(str, &pos, shell); //, &arr_token[token_index]);
-		if (!result->arr[token_index])
-		{
-			for (int i = 0; i < token_index; i++)
-				free(result->arr[i]);
-			free(result->arr);
-			free(result);
-			perror("Erreur d'allocation pour les tokens");
-		}
-		printf("str %d:\t%s\n",token_index, (char *)result->arr[token_index]); //debug_print
-		token_index++;
-	}
-	return result;
+        result->arr = malloc(sizeof(char *) * (result->len + 1));
+        if (!result->arr)
+        {
+                free(result);
+                perror("Malloc");
+        }
+        pos = 0;
+        token_index = 0;
+        while (token_index < result->len)
+        {
+                result->arr[token_index] = extract_arg(str, &pos, shell);
+                if (!result->arr[token_index])
+                {
+                        for (int i = 0; i < token_index; i++)
+                                free(result->arr[i]);
+                        free(result->arr);
+                        free(result);
+                        perror("Erreur d'allocation pour les tokens");
+                }
+                printf("str %d:\t%s\n", token_index, (char *)result->arr[token_index]); //debug_print
+                token_index++;
+        }
+        result->arr[token_index] = NULL;
+        return result;
 }
