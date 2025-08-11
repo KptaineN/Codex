@@ -101,6 +101,38 @@ typedef struct s_token
    int                     n_args;
 }   t_token;
 
+/* =============================
+ * Command & Redirection structures
+ * ============================= */
+typedef enum e_rtype
+{
+    R_IN,
+    R_OUT_TRUNC,
+    R_OUT_APPEND,
+    R_HEREDOC
+}   t_rtype;
+
+typedef struct s_redir
+{
+    t_rtype type;
+    char    *arg; /* filename or delimiter */
+}   t_redir;
+
+typedef struct s_cmd
+{
+    char    **argv;
+    t_redir *r;
+    int     r_count;
+    int     is_builtin;
+}   t_cmd;
+
+typedef struct s_delim
+{
+    char *raw;
+    char *clean;
+    int   quoted;
+}   t_delim;
+
 typedef struct s_shell
 {
     char            *input;
@@ -181,8 +213,12 @@ int     count_subtokens(const char *str);
 void    subtoken_of_cmd(t_subtoken_container *container, char *arg);
 int     find_c_nonescaped(const char *str, char *needle, int size_needle);
 bool    escape_check(const char *str, int idx);
-void    file_access_redirection(t_shell *shell, void **arr, int t_arr_index, int i);
+
+//void    file_access_redirection(t_shell *shell, void **arr, int t_arr_index, int i);
 void    build_cmd_list(t_shell *shell);
+=======
+int     file_access_redirection(t_shell *shell, void **arr, int t_arr_index, int i);
+
 char *find_command_path(char *cmd, t_list *env);
 void     execute_cmd(t_shell *shell, t_token *cmd);
 //void     ft_itoa_inplace(char *buf, int n);
@@ -243,6 +279,10 @@ int handle_redirect_out(t_shell *shell, char **argv);
 typedef int (*builtin_fptr)(t_shell *, char **);
 
 void free_t_arr_dic(t_arr *array);
-
-
+/* ----- Redirection & heredoc ----- */
+t_delim parse_delim(const char *raw);
+char    *expand_vars_in_line(const char *line, t_shell *sh);
+int     build_heredoc_fd(t_delim d, t_shell *sh);
+int     apply_redirs_in_child(t_cmd *c, t_shell *sh);
+void    child_exec_maillon(t_cmd *c, t_shell *sh, int i, int ncmd, int p[][2]);
 # endif // MINISHELL_H

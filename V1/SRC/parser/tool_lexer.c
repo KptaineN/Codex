@@ -118,7 +118,11 @@ int count_tokens(t_shell *shell, t_arr *parsed_args, t_arr *oper)
         {
             count++;
             if (idx_oper < 2 || idx_oper > 4)
-                i += 2;
+            {
+                int consumed = file_access_redirection(shell, parsed_args->arr, idx_oper, i);
+                i += consumed;
+                 continue;
+            }
             else
                 i++;
         }
@@ -153,14 +157,25 @@ int attribute_cmd_subtokens(t_shell *shell, t_token *cmd_token, int idx, int len
     cmd_token->n_args = len;
 
     //printf("[DEBUG] attribute_cmd_subtokens: len = %d, idx = %d\n", len, idx);
-    for (int k = 0; k < len && idx < arr_arg->len; k++, idx++)
+    for (int k = 0; k < len && idx < arr_arg->len; )
     {
+        int op_idx = is_in_t_arr_dic_str(shell->oper, args[idx]);
+        if (op_idx != -1 && (op_idx < 2 || op_idx > 4))
+        {
+            char *op = ((t_dic *)shell->oper->arr[op_idx])->key;
+            if ((int)ft_strlen(args[idx]) == (int)ft_strlen(op))
+                idx++;
+            idx++;
+            continue;
+        }
         containers[k].n_parts = count_subtokens(args[idx]);
         if (containers[k].n_parts > 0)
         {
             containers[k].parts = malloc(sizeof(t_subtoken) * containers[k].n_parts);
             subtoken_of_cmd(&containers[k], args[idx]);
         }
+        idx++;
+        k++;
     }
 
     containers[len].n_parts = 0;
