@@ -144,7 +144,10 @@ static void add_redir(t_token *tok, t_rtype type, const char *arg)
         return;
     tok->r = new_r;
     tok->r[tok->r_count].type = type;
-    tok->r[tok->r_count].arg = strip_quotes(arg);
+    if (type == R_HEREDOC)
+        tok->r[tok->r_count].arg = ft_strdup(arg);
+    else
+        tok->r[tok->r_count].arg = strip_quotes(arg);
     tok->r_count++;
 }
 
