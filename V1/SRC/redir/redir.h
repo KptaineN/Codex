@@ -13,12 +13,12 @@
 #ifndef REDIR_H
 # define REDIR_H
 
-#include "minishell.h"
+# include "minishell.h"
 
 int     build_heredoc_fd(t_delim d, t_shell *sh);
 int     apply_redirs_in_child(t_cmd *c, t_shell *sh);
 void    ambiguous(const char *original);
-int     is_ambiguous(const char *fname);
+int     is_ambiguous(const char *fname, const char *raw);
 char    *expand_filename_if_needed(char *arg, t_shell *sh);
 int     run_builtin(t_cmd *c, t_shell *sh);
 char    *resolve_path(const char *cmd, t_shell *sh);
@@ -33,4 +33,3 @@ t_delim parse_delim(const char *raw);
 int     handle_heredoc(t_shell *shell, char **argv);
 
 #endif // REDIR_H
-
