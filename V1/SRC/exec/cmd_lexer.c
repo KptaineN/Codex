@@ -38,7 +38,11 @@ void	build_cmd_list(t_shell *shell)
 			if (prev)
 				prev->next = tok;
 			tok->next = NULL;
-			add_cmd(shell, tok);
+			if (!add_cmd(shell, tok))
+			{
+				free_cmd_list(shell);
+				return ;
+			}
 			prev = tok;
 			shell->n_cmd++;
 		}

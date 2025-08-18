@@ -25,7 +25,7 @@ bool	is_command(char *str, t_list *env)
 	return (0);
 }
 
-void	add_cmd(t_shell *shell, t_token *token)
+bool	add_cmd(t_shell *shell, t_token *token)
 {
 	t_list	*tmp;
 
@@ -33,7 +33,7 @@ void	add_cmd(t_shell *shell, t_token *token)
 	if (!tmp)
 	{
 		perror("Erreur malloc add_cmd");
-		return ;
+		return (false);
 	}
 	tmp->content = (void *)token;
 	tmp->next = NULL;
@@ -47,4 +47,5 @@ void	add_cmd(t_shell *shell, t_token *token)
 		shell->cmd_tail->next = tmp;
 		shell->cmd_tail = tmp;
 	}
+	return (true);
 }
