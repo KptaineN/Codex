@@ -67,12 +67,12 @@ char    **env_to_array(t_shell *shell)
         while (node)
         {
                 env = (t_env *)node->content;
-                arr[i] = create_env_entry(env);
-                if (!arr[i])
-                        return (free_export_arr(arr), NULL);
-                i++;
-                node = node->next;
-        }
+               arr[i] = create_env_entry(env);
+               if (!arr[i])
+                       return (free_str_array(arr), NULL);
+               i++;
+               node = node->next;
+       }
         arr[i] = NULL;
         return (arr);
 }
@@ -98,16 +98,4 @@ void    print_export_arr(char **arr)
         }
 }
 
-void    free_export_arr(char **arr)
-{
-        size_t  i;
-
-        i = 0;
-        while (arr[i])
-        {
-                free(arr[i]);
-                i++;
-        }
-        free(arr);
-}
 

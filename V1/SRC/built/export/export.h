@@ -22,7 +22,6 @@ int             process_export_argument(char *arg, t_shell *shell);
 /* export_utils.c */
 char    **env_to_array(t_shell *shell);
 void    print_export_arr(char **arr);
-void    free_export_arr(char **arr);
 
 /* export_args.c */
 int             is_valid_identifier(const char *name);
