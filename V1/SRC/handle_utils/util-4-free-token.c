@@ -19,11 +19,13 @@ static void	free_subtoken_parts(t_subtoken_container *cont)
 	if (!cont || !cont->parts)
 		return ;
 	k = 0;
-	while (k < cont->n_parts)
-	{
-		cont->parts[k].p = NULL;
-		k++;
-	}
+        while (k < cont->n_parts)
+        {
+                if (cont->parts[k].p)
+                        free(cont->parts[k].p);
+                cont->parts[k].p = NULL;
+                k++;
+        }
 	free(cont->parts);
 	cont->parts = NULL;
 	cont->n_parts = 0;

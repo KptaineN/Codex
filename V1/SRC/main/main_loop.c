@@ -73,13 +73,15 @@ int	process_input(t_shell *sh, char *in)
 	line = expand_input(in, sh);
 	if (!line)
 		return (free(in), 0);
-	ret = parse_and_prepare(sh, line);
-	if (ret < 0)
-	{
-		free(line);
-		free(in);
-		return (ret);
-	}
+        ret = parse_and_prepare(sh, line);
+        if (ret < 0)
+        {
+                cleanup_shell_iter(sh);
+                free(line);
+                sh->input = NULL;
+                free(in);
+                return (ret);
+        }
         launch_process(sh);
         cleanup_shell_iter(sh);
         free(line);

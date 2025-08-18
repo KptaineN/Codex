@@ -84,9 +84,9 @@ void	free_parser(t_shell *parser)
 	if (parser->oper)
 		free_t_arr_dic(parser->oper);
 	parser->oper = NULL;
-	if (parser->env)
-		free_list_str(parser->env);
-	parser->env = NULL;
+        if (parser->env)
+                free_env_list(parser->env);
+        parser->env = NULL;
 }
 
 void	free_minishell(t_shell *shell)

@@ -284,6 +284,7 @@ void    ft_lstadd_front(t_list **lst, void *content);
 t_list  *search_lst(t_list *lst, const char *target);
 void    replace_or_add_env(t_list **env, const char *key, const char *value);
 void    free_list_str(t_list *lst);
+void    free_env_list(t_list *lst);
 /* --- Listes & Chaînes --- */
 
 void    push_lst(t_list **lst, void *content);
