@@ -16,11 +16,8 @@ void	free_str_array(char **arr)
 {
 	int	i;
 
-	if (!arr)
-	{
-		printf("[DEBUG] free_str_array: arr == NULL\n");
-		return ;
-	}
+        if (!arr)
+                return ;
 	i = 0;
 	while (arr[i])
 	{
