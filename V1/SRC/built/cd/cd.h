@@ -13,6 +13,8 @@
 #ifndef CD_H
 # define CD_H
 
-# include "../../../include/minishell.h"
+#include "minishell.h"
 
-#endif // CD.H
+int     builtin_cd(t_shell *sh, char **args);
+
+#endif // CD_H
