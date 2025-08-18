@@ -265,7 +265,7 @@ int count_exp_len(t_subtoken *b, int *k);
 int	sum_parts_len(t_subtoken_container *a);
 void add_redir(t_token *tok, t_rtype type, const char *arg);
 void	push_redir_if_current(t_token *cur, int op_idx, char *fname);
-void	add_cmd(t_shell *shell, t_token *token);
+bool	add_cmd(t_shell *shell, t_token *token);
 
 
 /* ================== EXPANSIONS ===================== */
