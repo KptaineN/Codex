@@ -74,9 +74,10 @@ int	process_input(t_shell *sh, char *in)
 		free(in);
 		return (0);
 	}
-	launch_process(sh);
-	cleanup_shell_iter(sh);
-	free(line);
-	free(in);
-	return (2);
+        launch_process(sh);
+        cleanup_shell_iter(sh);
+        free(line);
+        sh->input = NULL;
+        free(in);
+        return (2);
 }
