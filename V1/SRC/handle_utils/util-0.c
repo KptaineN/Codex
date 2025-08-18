@@ -6,37 +6,26 @@
 /*   By: nkiefer <nkiefer@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/12 16:30:56 by eganassi          #+#    #+#             */
-/*   Updated: 2025/06/26 08:23:23 by nkiefer          ###   ########.fr       */
+/*   Updated: 2025/08/16 12:54:21 by nkiefer          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-/*
-// Assemble trois chaînes (ex: "bin", "/", "ls" -> "bin/ls")
-char	*ft_strjoin_3(const char *a, const char *b, const char *c)
+void	cleanup_shell_iter(t_shell *sh)
 {
-	char	*tmp;
-	char	*res;
-
-	tmp = ft_strjoin(a, b);
-	if (!tmp)
-		return (NULL);
-	res = ft_strjoin(tmp, c);
-	free(tmp);
-	return (res);
+	if (sh->parsed_args)
+	{
+		free_str_array((char **)sh->parsed_args->arr);
+		free(sh->parsed_args);
+		sh->parsed_args = NULL;
+	}
+	free_cmd_list(sh);
+	free_tokens(sh);
+	free(sh->pids);
+	sh->pids = NULL;
 }
 
-char	*ft_tripljoinstring(char *s1, char *s2, char *s3)
-{
-	char	*tmp = ft_strjoin(s1, s2);
-	char	*res = ft_strjoin(tmp, s3);
-	free(s1);
-	free(tmp);
-	return (res);
-}*/
-// Concatène a + b + c. Si free_a est 1, libère 'a' après usage.
-// Utile pour accumuler dynamiquement (ex: res = join3_and_free(res, x, y, 1))
 char	*ft_strjoin3(char *a, const char *b, const char *c, int free_a)
 {
 	char	*tmp;
@@ -54,41 +43,41 @@ char	*ft_strjoin3(char *a, const char *b, const char *c, int free_a)
 	return (res);
 }
 
-
-void	handle_error(const char *message)
+static void	child_cleanup_shell(t_shell *sh)
 {
-	perror(message);
-	exit(EXIT_FAILURE);
+	if (!sh)
+		return ;
+	if (sh->exec_envp_tmp)
+		free_str_array(sh->exec_envp_tmp);
+	if (sh->exec_cmd_path_tmp)
+		free(sh->exec_cmd_path_tmp);
+	if (sh->exec_candidates_tmp)
+		free_list_str(sh->exec_candidates_tmp);
+	sh->exec_envp_tmp = NULL;
+	sh->exec_cmd_path_tmp = NULL;
+	sh->exec_candidates_tmp = NULL;
 }
 
-/*void handle_signal(int signal)
+void	exit_child_process(t_shell *sh, int code)
 {
-	if (signal == SIGINT)
-	{
-		// Handle Ctrl+C
-		write(STDOUT_FILENO, "\n", 1); // Print a newline
-		rl_replace_line("", 0); // Clear the current line in readline
-		rl_on_new_line(); // Move to a new line
-		rl_redisplay(); // Redisplay the prompt
-	}
-	else if (signal == SIGQUIT)
-	{
-		// Handle Ctrl+\ (SIGQUIT)
-		write(STDOUT_FILENO, "Quit (core dumped)\n", 19);
-	}
-}*/
-/*void	print_prompt(t_shell *shell)
+	child_cleanup_shell(sh);
+	exit(code);
+}
+
+void	handle_builtin(t_shell *shell)
 {
-	// You can customize the prompt here, e.g.,
-	//	add colors or display the current directory
-	char *cwd = getcwd(NULL, 0); // Get current working directory
-	if (cwd)
-	{
-		printf("\033[1;32m%s\033[0m$ ", cwd); // Print in green color
-		free(cwd);
-	}
+	if (ft_strncmp(shell->args[0], "cd", ft_strlen("cd") + 1) == 0)
+		handle_cd(shell);
+	else if (ft_strncmp(shell->args[0], "exit", ft_strlen("exit") + 1) == 0)
+		handle_exit(shell);
+	else if (ft_strncmp(shell->args[0], "env", ft_strlen("env") + 1) == 0)
+		handle_env(shell);
+	else if (ft_strncmp(shell->args[0], "export", ft_strlen("export") + 1) == 0)
+		handle_export(shell);
+	else if (ft_strncmp(shell->args[0], "unset", ft_strlen("unset") + 1) == 0)
+		handle_unset(shell);
+	else if (ft_strncmp(shell->args[0], "echo", ft_strlen("echo") + 1) == 0)
+		handle_echo(shell);
 	else
-	{
-		printf("minishell$ ");
-	}
-}*/
+		fprintf(stderr, "%s: command not found\n", shell->args[0]);
+}

@@ -1,114 +1,90 @@
-#include "../../include/minishell.h"
-#include <stdlib.h>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   env_list.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nkiefer <nkiefer@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/12 16:35:29 by eganassi          #+#    #+#             */
+/*   Updated: 2025/08/13 22:30:42 by nkiefer          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-int env_len(t_list *env)
+#include "env.h"
+
+static int	count_exportable(const t_list *env)
 {
-    int count;
+	int			count;
+	const t_env	*e;
 
-    count = 0;
-    while (env)
-    {
-        count++;
-        env = env->next;
-    }
-    return (count);
+	count = 0;
+	while (env)
+	{
+		e = (const t_env *)env->content;
+		if (e && e->value)
+			count++;
+		env = env->next;
+	}
+	return (count);
 }
 
-char    **list_to_envp(t_list *env)
+/* Construit une nouvelle chaîne "key=value" (malloc) */
+static char	*make_kv_cstr(const char *k, const char *v)
 {
-    int     count;
-    int     i;
-    char    **envp;
-    t_env   *cur;
-    int     klen;
-    int     vlen;
+	size_t	nk;
+	size_t	nv;
+	char	*s;
 
-    count = 0;
-    for (t_list *it = env; it; it = it->next)
-        if (((t_env *)it->content)->value)
-            count++;
-    envp = malloc(sizeof(char *) * (count + 1));
-    if (!envp)
-        return (NULL);
-    i = 0;
-    while (env)
-    {
-        cur = env->content;
-        if (cur->value)
-        {
-            klen = ft_strlen(cur->key);
-            vlen = ft_strlen(cur->value);
-            envp[i] = malloc(klen + 1 + vlen + 1);
-            if (!envp[i])
-            {
-                while (i > 0)
-                    free(envp[--i]);
-                free(envp);
-                return (NULL);
-            }
-            ft_strcpy(envp[i], cur->key);
-            envp[i][klen] = '=';
-            ft_strcpy(envp[i] + klen + 1, cur->value);
-            i++;
-        }
-        env = env->next;
-    }
-    envp[i] = NULL;
-    return (envp);
+	if (!k || !v)
+		return (NULL);
+	nk = ft_strlen(k);
+	nv = ft_strlen(v);
+	s = (char *)malloc(nk + 1 + nv + 1);
+	if (!s)
+		return (NULL);
+	ft_memcpy(s, k, nk);
+	s[nk] = '=';
+	ft_memcpy(s + nk + 1, v, nv);
+	s[nk + 1 + nv] = '\0';
+	return (s);
 }
 
-void print_env(t_list *env)
+/* Libère un envp partiellement rempli (filled éléments) */
+static void	free_envp_partial(char **envp, int filled)
 {
-    while (env)
-    {
-        t_env *cur = env->content;
-        if (cur->value)
-            printf("%s=%s\n", cur->key, cur->value);
-        else
-            printf("%s=\n", cur->key);
-        env = env->next;
-    }
+	int	i;
+
+	i = filled - 1;
+	while (i >= 0)
+		free(envp[i--]);
+	free(envp);
 }
 
-t_list *init_env(char **envp)
+/* Convertit la liste env -> tableau envp (NULL-terminé) */
+char	**list_to_envp(t_list *env)
 {
-    t_list *head = NULL;
-    t_list *tail = NULL;
-    int     i = 0;
+	int			n;
+	int			i;
+	char		**envp;
+	const t_env	*cur;
 
-    while (envp[i])
-    {
-        char *eq = ft_strchr(envp[i], '=');
-        t_env *env;
-        t_list *node;
-
-        if (!eq)
-        {
-            i++;
-            continue;
-        }
-        env = malloc(sizeof(t_env));
-        if (!env)
-            return NULL;
-        env->key = ft_substr(envp[i], 0, eq - envp[i]);
-        env->value = ft_strdup(eq + 1);
-        node = malloc(sizeof(t_list));
-        if (!node || !env->key || !env->value)
-        {
-            free(env->key);
-            free(env->value);
-            free(env);
-            free(node);
-            return NULL;
-        }
-        node->content = env;
-        node->next = NULL;
-        if (!head)
-            head = node;
-        else
-            tail->next = node;
-        tail = node;
-        i++;
-    }
-    return head;
+	n = count_exportable(env);
+	envp = (char **)malloc(sizeof(char *) * (n + 1));
+	if (!envp)
+		return (NULL);
+	i = 0;
+	while (env)
+	{
+		cur = (const t_env *)env->content;
+		if (cur && cur->value)
+		{
+			envp[i] = make_kv_cstr(cur->key, cur->value);
+			if (!envp[i])
+				return (free_envp_partial(envp, i), NULL);
+			i++;
+		}
+		env = env->next;
+	}
+	envp[i] = NULL;
+	return (envp);
 }

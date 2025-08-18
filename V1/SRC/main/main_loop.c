@@ -6,248 +6,77 @@
 /*   By: nkiefer <nkiefer@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/12 16:24:16 by eganassi          #+#    #+#             */
-/*   Updated: 2025/07/28 14:01:14 by nkiefer          ###   ########.fr       */
+/*   Updated: 2025/08/16 13:00:04 by nkiefer          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-
-/*** 1) Lecture de l’input ***/
-char *read_user_input(void)
+static int	is_line_empty(const char *s)
 {
-    char *input = readline("ᕕ( ᐛ )ᕗ minishell$ ");
-    if (!input)
-        write(1, "exit\n", 5);
-
-    /*
-    ** Exemple d'utilisation de get_next_line pour lire plusieurs lignes
-    ** et concaténer à l'entrée initiale 
-	util pour dquote
-	char *line;
-	while ((line = get_next_line(STDIN_FILENO))) {
-	    char *tmp = ft_strjoin(input, "\n");
-	    char *new = ft_strjoin(tmp, line);
-	    free(tmp);
-	    free(input);
-	    free(line);
-	    input = new;
-	}*/
- 
-    return (input);
+	return (!s || *s == '\0');
 }
 
-/*** 2) Injection de $? ***/
-char *expand_status(char *input, t_shell *sh)
+static int	must_exit(const char *s)
 {
-    char *res = replace_exit_code(input, sh->exit_status);
-    return (res);  // à free par l’appelant
+	return (ft_strcmp(s, "exit") == 0);
 }
 
-/*** 3) Expansion des autres variables ***/
-/* Cette fonction est supposée exister : replace_variables(const char*, t_shell*) */
-
-
-
-/*
-int looping(t_shell *shell)
+static void	ensure_fallback_cmd(t_shell *sh)
 {
-	char  *input;
-	char  *step1;
-	char  *step2;
+	t_list	*node;
 
-	while (1)
+	if (sh->n_tokens > 0 && sh->n_cmd == 0)
 	{
-		// 1) lire l’input
-		input = read_user_input();
-		if (!input)
-			break;
-		if (*input == '\0')
+		sh->n_cmd = 1;
+		node = ft_lstnew(&sh->tokens[0]);
+		if (!node)
 		{
-			free(input);
-			continue;
+			perror("ft_lstnew");
+			exit(1);
 		}
-		add_history(input);
-		if (ft_strcmp(input, "exit") == 0) {
-            free(input);
-            break;
-        }
-		// 2) expansion de $?
-		step1 = expand_status(input, shell);
-		if (!step1)
-		{
-			free(input);
-			continue;
-		}
-
-		// 3) expansion des variables
-		step2 = replace_variables(step1, shell);
-		free(step1);
-		if (!step2)
-		{
-			free(input);
-			continue;
-		}
-
-		// 4) Parsing avec le vrai parser (custom_split + attribute_token_type)
-		shell->input = step2;
-		shell->parsed_args = custom_split(step2, shell);
-		if (!shell->parsed_args)
-		{
-			free(step2);
-			free(input);
-			continue;
-		}
-
-        // ——— RÉINITIALISATION DU PARSER ——— 
-      
- 
-        // Attribution des types de tokens /
-		attribute_token_type(shell);
-		printf("DEBUG: BEFORE REINIT n_cmd = %d\n", shell->n_cmd);
-		//4) Tokenisation + attribution du type 
-        //attribute_token_type(shell);
- 
-        //Fallback : s'il y a des tokens mais pas de commande détectée,
-         // on force n_cmd = 1 et on crée un cmd_head minimal.
-		shell->n_cmd = 0;
-        shell->cmd_head = NULL;
-        shell->cmd_tail = NULL;
-        if (shell->n_cmd == 0 && shell->n_tokens > 0)
-        {
-            shell->n_cmd = 1;
-            //On pointe vers le 1er token comme commande unique 
-            t_list *fallback = ft_lstnew(&shell->tokens[0]);
-            if (!fallback) { perror("ft_lstnew fallback"); exit(1); }
-            shell->cmd_head = fallback;
-            shell->cmd_tail = fallback;
-        }
-        printf("DEBUG: AFTER n_cmd = %d\n", shell->n_cmd);
-		// print_commands(shell->parser.cmd_head);
-		if (shell->n_cmd == 1) 
-		{
-            t_token *cmd = (t_token *)shell->cmd_head->content;
-            if (cmd && cmd->value && ft_strcmp(cmd->value, "exit") == 0) 
-			{
-                free(step2);
-                // free parser/env ici !
-                break;
-            }
-        }
-		shell->pids = malloc(sizeof(pid_t) * shell->n_cmd);
-		if (!shell->pids)
-			perror("MALLOC pids");
-		// 5) Exécution
-		launch_process(shell);
-		printf("\nlast line\n");
-		// 6) Cleanup (ajuster selon ce qui est alloué)
-		free_tab((char **)shell->parsed_args->arr);
-		free(shell->parsed_args);
-		free_tokens(shell);
-        free_cmd_list(shell);
-		shell->parsed_args = NULL;
-
-		free_tokens(shell);
-
-		t_list *it = shell->cmd_head;
-  		while (it)
-  		{
-  		    t_list *next = it->next;
-  		    free(it);
-  		    it = next;
-  		}
-  		shell->cmd_head = NULL;
-  		shell->cmd_tail = NULL;
-
-		free(step2);
-		free(input);
+		sh->cmd_head = node;
+		sh->cmd_tail = node;
 	}
-	return (0);
-}*/
-int looping(t_shell *shell)
+}
+
+static int	parse_and_prepare(t_shell *sh, char *line)
 {
-    char  *input;
-    char  *step1;
-    char  *step2;
+	sh->input = line;
+	sh->parsed_args = custom_split(line, sh);
+	if (!sh->parsed_args)
+		return (-1);
+	attribute_token_type(sh);
+	assign_redirs(sh);
+	build_cmd_list(sh);
+	ensure_fallback_cmd(sh);
+	sh->pids = malloc(sizeof(pid_t) * sh->n_cmd);
+	if (!sh->pids)
+		perror("malloc pids");
+	return (0);
+}
 
-    while (1)
-    {
-        // … lecture + expansions identiques …
+int	process_input(t_shell *sh, char *in)
+{
+	char	*line;
 
-		// 1) lire l’input
-		input = read_user_input();
-		if (!input)
-			break;
-		if (*input == '\0')
-		{
-			free(input);
-			continue;
-		}
-		add_history(input);
-		if (ft_strcmp(input, "exit") == 0) {
-            free(input);
-            break;
-        }
-		// 2) expansion de $?
-		step1 = expand_status(input, shell);
-		if (!step1)
-		{
-			free(input);
-			continue;
-		}
-
-		// 3) expansion des variables
-		step2 = replace_variables(step1, shell);
-		free(step1);
-		if (!step2)
-		{
-			free(input);
-			continue;
-		}
-
-        /* 4) Parsing */
-        shell->input = step2;
-        shell->parsed_args = custom_split(step2, shell);
-        if (!shell->parsed_args) { free(step2); free(input); continue; }
-
-        /* Attribution des types */
-        attribute_token_type(shell);
-        assign_redirs(shell);
-
-        build_cmd_list(shell);
-        if (shell->n_tokens > 0 && shell->n_cmd == 0)
-        {
-            shell->n_cmd = 1;
-            t_list *fallback = ft_lstnew(&shell->tokens[0]);
-            if (!fallback) { perror("ft_lstnew"); exit(1); }
-            shell->cmd_head = fallback;
-            shell->cmd_tail = fallback;
-        }
-
-        /* Allocation & exécution */
-        shell->pids = malloc(sizeof(pid_t) * shell->n_cmd);
-        if (!shell->pids) perror("malloc pids");
-        launch_process(shell);
-
-        /* ========== CLEANUP ========== */
-        /* 1) Les chaînes de parsed_args */
-        free_str_array((char **)shell->parsed_args->arr);
-        free(shell->parsed_args);
-        shell->parsed_args = NULL;
-
-        /* 2) Les tokens (tableau) */
-		free_cmd_list(shell);
- 		free_tokens(shell);
-
-        /* 3) La liste des commandes (noeuds t_list) */
-        
-        /* 4) Le tableau des pids */
-        free(shell->pids);
-        shell->pids = NULL;
-
-        /* 5) Les buffers */
-        free(step2);
-        free(input);
-    }
-    return 0;
+	if (is_line_empty(in))
+		return (free(in), 0);
+	add_history(in);
+	if (must_exit(in))
+		return (free(in), 1);
+	line = expand_input(in, sh);
+	if (!line)
+		return (free(in), 0);
+	if (parse_and_prepare(sh, line) < 0)
+	{
+		free(line);
+		free(in);
+		return (0);
+	}
+	launch_process(sh);
+	cleanup_shell_iter(sh);
+	free(line);
+	free(in);
+	return (2);
 }
