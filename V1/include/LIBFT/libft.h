@@ -69,5 +69,5 @@ char    *ft_strcpy(char *dest, const char *src);
 char    *ft_strndup(const char *s, size_t n);
 char    *ft_strncpy(char *dest, const char *src, size_t n);
 
+#endif // LIBFT_H
 
-#endif /* LIBFT_H */

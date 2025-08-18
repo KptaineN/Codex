@@ -18,12 +18,12 @@
 #  define BUFFER_SIZE 5
 # endif
 
+char    *get_next_line(int fd);
+char    *get_strchr(const char *str, int c);
+char    *get_strdup(const char *s);
+char    *get_strjoin(char *s1, char *s2);
+char    *get_substr(char const *s, unsigned int start, size_t len);
+int     get_strlen(const char *str);
 
-char	*get_next_line(int fd);
-char	*get_strchr(const char *str, int c);
-char	*get_strdup(const char *s);
-char	*get_strjoin(char *s1, char *s2);
-char	*get_substr(char const *s, unsigned int start, size_t len);
-int		get_strlen(const char *str);
+#endif // GET_NEXT_LINE_H
 
-#endif

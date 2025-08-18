@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../include/minishell.h"
+#include "minishell.h"
 
 char	*check_dir_for_cmd(char *dir, char *cmd)
 {
@@ -74,11 +74,9 @@ char	*search_in_path(char *cmd, char *path_env)
 char	*find_command_path(char *cmd, t_list *env)
 {
 	char	*path_env;
-	char	*direct;
 	char	*found;
 
 	path_env = NULL;
-	direct = NULL;
 	found = NULL;
 	if (ft_strchr(cmd, '/'))
 	{

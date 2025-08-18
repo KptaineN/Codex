@@ -351,4 +351,4 @@ int     apply_redirs_in_child(t_cmd *c, t_shell *sh);
 char *expand_input(char *input, t_shell *sh);
 
 
-# endif // MINISHELL_H
+#endif // MINISHELL_H
