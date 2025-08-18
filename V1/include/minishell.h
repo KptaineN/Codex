@@ -175,7 +175,7 @@ void	print_header_emote(void);
 /* prototypes manquants */
 char    *replace_exit_code(const char *input, int exit_status);
 char    *replace_variables(const char *input, t_shell *shell);
-void    launch_process(t_shell *shell);
+void    launch_process(t_shell *sh);
 
 void free_cmd_list(t_shell *shell);
 
