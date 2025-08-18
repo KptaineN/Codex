@@ -11,14 +11,10 @@
 /* ************************************************************************** */
 
 
-
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
 # define _POSIX_C_SOURCE 200809L
-
-# include "LIBFT/libft.h"
-
 
 # include <errno.h>
 # include <fcntl.h>
@@ -34,6 +30,7 @@
 # include <sys/wait.h>
 # include <unistd.h>
 
+# include "LIBFT/libft.h"
 
 
 /* =============================
@@ -171,7 +168,6 @@ typedef struct s_shell
 
 void	print_header_emote(void);
 
-
 /* prototypes manquants */
 char    *replace_exit_code(const char *input, int exit_status);
 char    *replace_variables(const char *input, t_shell *shell);
@@ -209,11 +205,10 @@ int builtin_unset(t_shell *shell, char **argv);
 int   export_no_arguments(t_shell *shell);
 int   process_export_argument(char *arg, t_shell *shell);
 /* --- Env --- */
-char    *get_env_value(t_list *env, const char *name);
-char    **list_to_envp(t_list *env);
 int     env_len(t_list *env);
 void    print_env(t_list *env);
 t_list  *init_env(char **envp);
+char    **list_to_envp(t_list *env);
 int     set_env_value(t_list **env, const char *key, const char *value);
 char    *find_env_value(t_list *env, const char *key);
 
@@ -229,37 +224,26 @@ void    subtoken_of_cmd(t_subtoken_container *container, char *arg);
 int     find_c_nonescaped(const char *str, char *needle, int size_needle);
 bool    escape_check(const char *str, int idx);
 
-//void    file_access_redirection(t_shell *shell, void **arr, int t_arr_index, int i);
 void    build_cmd_list(t_shell *shell);
 int     file_access_redirection(t_shell *shell, void **arr, int t_arr_index, int i);
 
-char *find_command_path(char *cmd, t_list *env);
-void     execute_cmd(t_shell *shell, t_token *cmd);
-//void     ft_itoa_inplace(char *buf, int n);
 char *ft_itoa_inplace(char *buf, int n);
-void	exit_child_process(t_shell *sh, int code);
 /* --- Utils --- */
 size_t  t_arrlen(void **arr);
-int     is_in_t_arr_str(t_arr *arr, const char *arg);
 int     is_in_t_arr_dic_str(t_arr *arr, const char *arg);
 void    build_t_arr_str(t_arr **dst, char **arr_str, int len);
 void    init_all_t_arr(t_shell *shell);
 void    free_tab(char **tab);
-void    ft_free(void **thing);
 void    init_signals(void);
 void    handle_error(const char *message);
 void cleanup_shell_iter(t_shell *sh);
 int  process_input(t_shell *sh, char *in);
-void	exit_shell(t_shell *shell, int exit_code);
 char *get_value_env(t_list *env, char *value, int len);
 void	build_t_arr_dic_str(t_arr **dst, char **keys, int (**values)(t_shell *,
 			char **), int len);
 void	free_t_arr_dic(t_arr *array);
-char *join_path(char *dir, char *cmd);
 
 void    free_t_arr(t_arr *arr);
-void    free_list(t_list *lst);
-void	build_t_arr_str(t_arr **dst, char **arr_str, int len);
 void	init_builtins_t_arr(t_shell *shell);
 int	run_builtin_if_any(t_shell *shell, char **args);
 
@@ -284,11 +268,6 @@ void	push_redir_if_current(t_token *cur, int op_idx, char *fname);
 void	add_cmd(t_shell *shell, t_token *token);
 
 
-/* ================== ENVIRONNEMENT ================== */
-//char	*get_value_env(t_list *env, const char *key);
-int		set_env_value(t_list **env, const char *key, const char *value);
-char	**list_to_envp(t_list *env);
-
 /* ================== EXPANSIONS ===================== */
 char	**expand_cmd(t_token *cmd, t_list *env);
 
@@ -307,19 +286,13 @@ void    replace_or_add_env(t_list **env, const char *key, const char *value);
 void    free_list_str(t_list *lst);
 /* --- Listes & Chaînes --- */
 
-//void    push_lst(t_list **lst, char *value);
 void    push_lst(t_list **lst, void *content);
 
 char    *ft_strdup_count(const char *src, int *count);
 
-char    **expand_cmd(t_token *token, t_list *env);
-int (*get_builtin_handler(t_arr *bcmd, int idx))(t_shell *, char **);
-
 void free_str_array(char **arr);
 
 /* --- Debug --- */
-void    print_all_parts(t_shell *shell);
-void    print_dic(t_arr *arr);
 
 void free_tokens(t_shell *parser);
 int ft_echo(t_shell *shell, char **argv);
@@ -340,15 +313,12 @@ int handle_redirect_out(t_shell *shell, char **argv);
 
 typedef int (*builtin_fptr)(t_shell *, char **);
 
-void free_t_arr_dic(t_arr *array);
 /* ----- Redirection & heredoc ----- */
 t_delim parse_delim(const char *raw);
 char    *expand_vars_in_line(const char *line, t_shell *sh);
 int     build_heredoc_fd(t_delim d, t_shell *sh);
 int     apply_redirs_in_child(t_cmd *c, t_shell *sh);
-//void    child_exec_maillon(t_cmd *c, t_shell *sh, int i, int ncmd, int p[][2]);
 
 char *expand_input(char *input, t_shell *sh);
-
 
 # endif // MINISHELL_H
