@@ -74,10 +74,17 @@ void	handle_builtin(t_shell *shell)
 		handle_env(shell);
 	else if (ft_strncmp(shell->args[0], "export", ft_strlen("export") + 1) == 0)
 		handle_export(shell);
-	else if (ft_strncmp(shell->args[0], "unset", ft_strlen("unset") + 1) == 0)
-		handle_unset(shell);
-	else if (ft_strncmp(shell->args[0], "echo", ft_strlen("echo") + 1) == 0)
-		handle_echo(shell);
-	else
-		fprintf(stderr, "%s: command not found\n", shell->args[0]);
+        else if (ft_strncmp(shell->args[0], "unset", ft_strlen("unset") + 1) == 0)
+                handle_unset(shell);
+        else if (ft_strncmp(shell->args[0], "echo", ft_strlen("echo") + 1) == 0)
+                handle_echo(shell);
+        else
+        {
+                size_t  len;
+
+                len = ft_strlen(shell->args[0]);
+                write(2, shell->args[0], len);
+                write(2, ": command not found\n",
+                        sizeof(": command not found\n") - 1);
+        }
 }
