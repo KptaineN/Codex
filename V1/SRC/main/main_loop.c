@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main_loop.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nkiefer <nkiefer@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nkief <nkief@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/12 16:24:16 by eganassi          #+#    #+#             */
-/*   Updated: 2025/08/16 13:00:04 by nkiefer          ###   ########.fr       */
+/*   Updated: 2025/08/20 11:13:52 by nkief            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,14 +50,14 @@ static int	parse_and_prepare(t_shell *sh, char *line)
 	assign_redirs(sh);
 	build_cmd_list(sh);
 	ensure_fallback_cmd(sh);
-        sh->pids = malloc(sizeof(pid_t) * sh->n_cmd);
-        if (!sh->pids)
-        {
-                perror("malloc pids");
-                cleanup_shell_iter(sh);
-                return (-2);
-        }
-        return (0);
+	sh->pids = malloc(sizeof(pid_t) * sh->n_cmd);
+	if (!sh->pids)
+	{
+		perror("malloc pids");
+		cleanup_shell_iter(sh);
+		return (-2);
+	}
+	return (0);
 }
 
 int	process_input(t_shell *sh, char *in)
@@ -73,19 +73,18 @@ int	process_input(t_shell *sh, char *in)
 	line = expand_input(in, sh);
 	if (!line)
 		return (free(in), 0);
-        ret = parse_and_prepare(sh, line);
-        if (ret < 0)
-        {
-                cleanup_shell_iter(sh);
-                free(line);
-                sh->input = NULL;
-                free(in);
-                return (ret);
-        }
-        launch_process(sh);
-        cleanup_shell_iter(sh);
-        free(line);
-        sh->input = NULL;
-        free(in);
-        return (2);
+	ret = parse_and_prepare(sh, line);
+	if (ret < 0)
+	{
+		cleanup_shell_iter(sh);
+		free(line);
+		sh->input = NULL;
+		free(in);
+		return (ret);
+	}
+	launch_process(sh);
+	cleanup_shell_iter(sh);
+	free(line);
+	sh->input = NULL;
+	return (free(in), 2);
 }

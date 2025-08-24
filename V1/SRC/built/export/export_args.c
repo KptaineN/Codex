@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   export_args.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nkiefer <nkiefer@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nkief <nkief@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 15:55:45 by nkiefer           #+#    #+#             */
-/*   Updated: 2025/08/13 16:07:56 by nkiefer          ###   ########.fr       */
+/*   Updated: 2025/08/20 16:14:35 by nkief            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,9 @@ int	handle_arg_with_assignment(char *arg, t_shell *shell)
 	*eq = '\0';
 	if (!is_valid_identifier(arg))
 	{
-		fprintf(stderr, "minishell: export: `%s': not a valid identifier\n",
-			arg);
+		ft_putstr_fd("minishell: export: `", STDERR_FILENO);
+		ft_putstr_fd(arg, STDERR_FILENO);
+		ft_putendl_fd("': not a valid identifier", STDERR_FILENO);
 		shell->exit_status = 1;
 		ret = 1;
 	}
@@ -56,8 +57,9 @@ int	handle_arg_without_assignment(char *arg, t_shell *shell)
 {
 	if (!is_valid_identifier(arg))
 	{
-		fprintf(stderr, "minishell: export: `%s': not a valid identifier\n",
-			arg);
+		ft_putstr_fd("minishell: export: `", STDERR_FILENO);
+		ft_putstr_fd(arg, STDERR_FILENO);
+		ft_putendl_fd("': not a valid identifier", STDERR_FILENO);
 		shell->exit_status = 1;
 		return (1);
 	}
@@ -77,15 +79,15 @@ int	export_no_arguments(t_shell *shell)
 {
 	char	**arr;
 
-        arr = env_to_array(shell);
-        if (!arr)
-        {
-                shell->exit_status = 1;
-                return (1);
-        }
-       ft_bubble_str_sort(arr);
-       print_export_arr(arr);
-       free_str_array(arr);
-       shell->exit_status = 0;
-       return (0);
+	arr = env_to_array(shell);
+	if (!arr)
+	{
+		shell->exit_status = 1;
+		return (1);
+	}
+	ft_bubble_str_sort(arr);
+	print_export_arr(arr);
+	free_str_array(arr);
+	shell->exit_status = 0;
+	return (0);
 }

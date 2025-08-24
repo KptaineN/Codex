@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   util-0.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nkiefer <nkiefer@student.42.fr>            +#+  +:+       +#+        */
+/*   By: kiefer <kiefer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/12 16:30:56 by eganassi          #+#    #+#             */
-/*   Updated: 2025/08/16 12:54:21 by nkiefer          ###   ########.fr       */
+/*   Updated: 2025/08/18 06:04:48 by kiefer           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,8 @@ void	exit_child_process(t_shell *sh, int code)
 
 void	handle_builtin(t_shell *shell)
 {
+	size_t	len;
+
 	if (ft_strncmp(shell->args[0], "cd", ft_strlen("cd") + 1) == 0)
 		handle_cd(shell);
 	else if (ft_strncmp(shell->args[0], "exit", ft_strlen("exit") + 1) == 0)
@@ -74,17 +76,14 @@ void	handle_builtin(t_shell *shell)
 		handle_env(shell);
 	else if (ft_strncmp(shell->args[0], "export", ft_strlen("export") + 1) == 0)
 		handle_export(shell);
-        else if (ft_strncmp(shell->args[0], "unset", ft_strlen("unset") + 1) == 0)
-                handle_unset(shell);
-        else if (ft_strncmp(shell->args[0], "echo", ft_strlen("echo") + 1) == 0)
-                handle_echo(shell);
-        else
-        {
-                size_t  len;
-
-                len = ft_strlen(shell->args[0]);
-                write(2, shell->args[0], len);
-                write(2, ": command not found\n",
-                        sizeof(": command not found\n") - 1);
-        }
+	else if (ft_strncmp(shell->args[0], "unset", ft_strlen("unset") + 1) == 0)
+		handle_unset(shell);
+	else if (ft_strncmp(shell->args[0], "echo", ft_strlen("echo") + 1) == 0)
+		handle_echo(shell);
+	else
+	{
+		len = ft_strlen(shell->args[0]);
+		write(2, shell->args[0], len);
+		write(2, ": command not found\n", sizeof(": command not found\n") - 1);
+	}
 }

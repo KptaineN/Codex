@@ -12,27 +12,26 @@
 
 #include "redir.h"
 
-void    ambiguous(const char *original)
+/* helpers for filename expansion / ambiguity */
+void	ambiguous(const char *original)
 {
-        ft_putstr_fd((char *)"minishell: ", STDERR_FILENO);
-        ft_putstr_fd((char *)original, STDERR_FILENO);
-        ft_putstr_fd((char *)": ambiguous redirect\n", STDERR_FILENO);
+	ft_putstr_fd((char *)"minishell: ", STDERR_FILENO);
+	ft_putstr_fd((char *)original, STDERR_FILENO);
+	ft_putstr_fd((char *)": ambiguous redirect\n", STDERR_FILENO);
 }
 
-int     is_ambiguous(const char *fname, const char *raw)
+int	is_ambiguous(const char *fname)
 {
-        size_t  i;
+	int	i;
 
-        if (!fname || *fname == '\0')
-                return (1);
-        if (ft_strchr(raw, '\'') || ft_strchr(raw, '"'))
-                return (0);
-        i = 0;
-        while (fname[i])
-        {
-                if (fname[i] == ' ')
-                        return (1);
-                i++;
-        }
-        return (0);
+	if (!fname || *fname == '\0')
+		return (1);
+	i = 0;
+	while (fname[i])
+	{
+		if (fname[i] == ' ')
+			return (1);
+		i++;
+	}
+	return (0);
 }

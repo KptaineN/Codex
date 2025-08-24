@@ -13,11 +13,10 @@
 #ifndef PIPE_H
 # define PIPE_H
 
-#include "minishell.h"
+# include "minishell.h"
 
 int		open_pipe_if_needed(int has_next, int pipe_fd[2]);
 void	close_if_valid(int fd);
 void	wait_pipeline(t_shell *sh, int count);
 
 #endif // PIPE_H
-

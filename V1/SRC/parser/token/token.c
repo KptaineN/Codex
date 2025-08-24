@@ -46,7 +46,6 @@ int	count_tokens(t_shell *sh, t_arr *parsed_args, t_arr *oper)
 
 int	setup_tokens_or_return(t_shell *sh)
 {
-
 	if (!sh || !sh->parsed_args || !sh->parsed_args->arr)
 	{
 		if (sh)

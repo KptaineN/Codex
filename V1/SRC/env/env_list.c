@@ -50,14 +50,13 @@ static char	*make_kv_cstr(const char *k, const char *v)
 }
 
 /* Libère un envp partiellement rempli (filled éléments) */
-static void     free_envp_partial(char **envp, int filled)
+static void	free_envp_partial(char **envp, int filled)
 {
-        if (!envp)
-                return ;
-        envp[filled] = NULL;
-        free_str_array(envp);
+	if (!envp)
+		return ;
+	envp[filled] = NULL;
+	free_str_array(envp);
 }
-
 
 /* Convertit la liste env -> tableau envp (NULL-terminé) */
 char	**list_to_envp(t_list *env)

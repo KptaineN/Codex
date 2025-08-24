@@ -13,26 +13,25 @@
 #ifndef EXPORT_H
 # define EXPORT_H
 
-#include "minishell.h"
+# include "minishell.h"
 
-int             builtin_export(t_shell *shell, char **argv);
-int             export_no_arguments(t_shell *shell);
-int             process_export_argument(char *arg, t_shell *shell);
+int		builtin_export(t_shell *shell, char **argv);
+int		export_no_arguments(t_shell *shell);
+int		process_export_argument(char *arg, t_shell *shell);
 
 /* export_utils.c */
-char    **env_to_array(t_shell *shell);
-void    print_export_arr(char **arr);
+char	**env_to_array(t_shell *shell);
+void	print_export_arr(char **arr);
 
 /* export_args.c */
-int             is_valid_identifier(const char *name);
-int             handle_arg_with_assignment(char *arg, t_shell *shell);
-int             handle_arg_without_assignment(char *arg, t_shell *shell);
+int		is_valid_identifier(const char *name);
+int		handle_arg_with_assignment(char *arg, t_shell *shell);
+int		handle_arg_without_assignment(char *arg, t_shell *shell);
 
 /* export_env.c */
-t_list  *find_env_var(t_shell *shell, const char *key);
-int             update_env_var(t_list *env, const char *value);
-int             create_env_var(t_shell *shell, const char *key, const char *value);
-int             set_env_var(t_shell *shell, const char *key, const char *value);
+t_list	*find_env_var(t_shell *shell, const char *key);
+int		update_env_var(t_list *env, const char *value);
+int		create_env_var(t_shell *shell, const char *key, const char *value);
+int		set_env_var(t_shell *shell, const char *key, const char *value);
 
 #endif // EXPORT_H
-

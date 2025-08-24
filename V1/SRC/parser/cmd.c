@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   cmd.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nkiefer <nkiefer@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nkief <nkief@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 22:41:19 by eganassi          #+#    #+#             */
-/*   Updated: 2025/08/18 01:42:44 by nkiefer          ###   ########.fr       */
+/*   Updated: 2025/08/20 11:59:14 by nkief            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "../../include/minishell.h"
 
 bool	is_command(char *str, t_list *env)
 {
@@ -48,4 +48,19 @@ bool	add_cmd(t_shell *shell, t_token *token)
 		shell->cmd_tail = tmp;
 	}
 	return (true);
+}
+
+int	process_cmd_token(t_shell *shell, t_token *tok, t_token **prev)
+{
+	if (*prev)
+		(*prev)->next = tok;
+	tok->next = NULL;
+	if (!add_cmd(shell, tok))
+	{
+		free_cmd_list(shell);
+		return (0);
+	}
+	*prev = tok;
+	shell->n_cmd++;
+	return (1);
 }

@@ -13,7 +13,7 @@
 #ifndef GO_AWAY_H
 # define GO_AWAY_H
 
-#include "minishell.h"
+# include "minishell.h"
 
 typedef struct s_ctx
 {
@@ -42,4 +42,3 @@ size_t			compute_out_len(size_t input_len, size_t count,
 void			update_quotes(bool *in_sq, bool *in_dq, char c);
 
 #endif // GO_AWAY_H
-

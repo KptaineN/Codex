@@ -6,7 +6,7 @@
 /*   By: nkiefer <nkiefer@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 11:24:57 by nkiefer           #+#    #+#             */
-/*   Updated: 2025/08/13 13:58:49 by nkiefer          ###   ########.fr       */
+/*   Updated: 2025/07/14 18:14:39 by nkiefer          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,5 +69,5 @@ char    *ft_strcpy(char *dest, const char *src);
 char    *ft_strndup(const char *s, size_t n);
 char    *ft_strncpy(char *dest, const char *src, size_t n);
 
-#endif // LIBFT_H
 
+#endif /* LIBFT_H */
